@@ -18,7 +18,7 @@ jobs:
           quarto render notas/ --to html
       - name: install rsync
         run: |
-          apt update & apt install -y rsync
+          apt update && apt install -y rsync
       - name: Deploy 🚀
         # only deploy when push to main
         if: github.event_name != 'pull_request'
