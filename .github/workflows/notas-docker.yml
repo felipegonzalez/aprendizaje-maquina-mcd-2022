@@ -12,12 +12,13 @@ jobs:
     container: felipexgonzalez/am-2022:latest
     steps:
       - uses: actions/checkout@v2
-
-
       - name: Render book 
         # Add any command line argument needed
         run: |
           quarto render notas/ --to html
+      - name: install rsync
+        run: |
+          apt update & apt install -y rsync
       - name: Deploy 🚀
         # only deploy when push to main
         if: github.event_name != 'pull_request'
