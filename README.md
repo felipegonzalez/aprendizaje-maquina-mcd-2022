@@ -1,6 +1,9 @@
 # Aprendizaje de Máquina (ITAM, Otoño 2022)
 
-Notas y material para el curso de Aprendizaje de Máquina
+Código para Notas y material para el curso de Aprendizaje de Máquina. 
+
+Las notas están en [en esta liga](https://felipegonzalez.github.io/aprendizaje-maquina-mcd-2022/)
+
 
 ### Contribuciones
 
