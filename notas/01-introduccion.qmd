@@ -194,7 +194,6 @@ de las imágenes. Por ejemplo, en este caso podríamos una red
 convolucional sobre los valores de los pixeles de la imagen:
 
 ```{r}
-reticulate::use_virtualenv("/opt/virtualenvs/mi_env")
 library(keras)
 # usamos los tres canales de la imagen
 imagenes <- map(path_full_imgs, ~ image_load(.x, target_size = c(64, 64)))

@@ -495,9 +495,6 @@ de un tamaño fijo $n$ que podríamos obtener. El segundo
 término puede llamarse variabilidad, mientras que el primero es el sesgo que obtenemos al usar una muestra $n$ finita.
 
 
-
-En esta versión, una parte del sesgo puede deberse a que nuestro método no tiene capacidad suficiente para encontrar la forma correcta de $f^*(x)$, incluso con datos completos (el primer término del sesgo), mientras que el segundo término del sesgo indica que con el tamaño de muestra $n$ que tenemos, su capacidad no se puede alcanzar.
-
 ## Ejemplo: fuentes de error
 
 Vamos a ver qué sucede con nuestros dos métodos si utilizamos una muestra grande:
@@ -552,7 +549,7 @@ g_2 <- ggplot(datos_tbl, aes(x = x)) +
             filter(str_detect(predictor, "lineal|_óptimo")), 
             aes(y = .pred, colour = predictor), size = 1.1) +
   labs(subtitle = "Lineal") 
-g_1 + g_2 
+g_1 + g_2 + plot_layout(guides = 'collect')
 ```
 
 Esto quiere decir que:

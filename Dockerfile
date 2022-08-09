@@ -26,6 +26,7 @@ RUN chmod -R a+x ${PYTHON_VENV_PATH}
 
 RUN .${PYTHON_VENV_PATH}/bin/activate && \
     pip install Pillow requests scipy \
+    protobuf==3.20.* \
     tensorflow==2.6.0 keras==2.6.0
   
 RUN install2.r --error Rcpp
