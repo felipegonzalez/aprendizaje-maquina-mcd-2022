@@ -176,8 +176,10 @@ angulos <- path_full_imgs[indice_imgs] |>
 
 
 ```{r, fig.width=4, fig.height=3}
-angulos_tbl <- angulos |> mutate(y_medidor = y_imagenes[indice_imgs])
-ggplot(angulos_tbl, aes(x = 180 * atan2(y_1, x_1) / pi + 90, y = y_medidor)) +
+angulos_tbl <- angulos |> 
+  mutate(y_medidor = y_imagenes[indice_imgs])
+ggplot(angulos_tbl, 
+    aes(x = 180 * atan2(y_1, x_1) / pi + 90, y = y_medidor)) +
   geom_point() + xlab("Ángulo")
 ```
 
@@ -224,7 +226,8 @@ generador_entrena <- flow_images_from_data(
 
 ```{r}
 modelo_aguja <- keras_model_sequential() |>
-  layer_conv_2d(input_shape = c(64, 64, 3), filters = 32, kernel_size = c(5, 5)) |> 
+  layer_conv_2d(input_shape = c(64, 64, 3), 
+    filters = 32, kernel_size = c(5, 5)) |> 
   layer_max_pooling_2d(pool_size = c(2, 2)) |>
   layer_conv_2d(filters = 32, kernel_size = c(5, 5)) |> 
   layer_max_pooling_2d(pool_size = c(2, 2)) |> 
@@ -339,12 +342,13 @@ del área habitable,
 por ejemplo, la calidad general de terminados:
 
 ```{r areacalidad, fig.cap = "Precio vs área y calidad", fig.width=6, fig.height=3}
-g_1 <- ggplot(casas_entrena |>  
-         filter(condicion_venta == "Normal") |>  
-         mutate(calidad_grupo = cut(calidad_gral, breaks = c(0, 5, 7, 8, 10))), 
-       aes(x = area_hab_m2, 
-           y = precio_miles,
-           colour = calidad_grupo)) +
+ggplot(casas_entrena |>  
+       filter(condicion_venta == "Normal") |>  
+       mutate(calidad_grupo = 
+        cut(calidad_gral, breaks = c(0, 5, 7, 8, 10))), 
+  aes(x = area_hab_m2, 
+      y = precio_miles,
+      colour = calidad_grupo)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, formula = "y ~ x")
 g_1
@@ -390,11 +394,11 @@ Definimos el tipo de modelo que queremos ajustar, creamos un flujo y ajustamos
 casas_modelo <- linear_reg() |> 
   set_engine("lm")
 # flujo
-workflow_casas <- workflow() |> 
+flujo_casas <- workflow() |> 
   add_recipe(receta_casas) |> 
   add_model(casas_modelo)
 # ajustar flujo
-ajuste <- fit(workflow_casas, casas_entrena)
+ajuste <- fit(flujo_casas, casas_entrena)
 ajuste
 ```
 

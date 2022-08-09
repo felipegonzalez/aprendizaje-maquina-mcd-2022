@@ -14,7 +14,7 @@ bibliography: referencias/book.bib
 
 format:
   html:
-    theme: flatly
+    theme: journal
     lang: es
     font-size: 1.1em
     code-fold: false
