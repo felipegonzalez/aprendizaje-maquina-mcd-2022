@@ -1,0 +1,119 @@
+---
+title: "Tarea 1"
+format: html
+---
+
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+```
+
+Función para generar datos:
+
+```{r}
+genera_datos <- function(n = 500, tipo = NULL){
+  dat_tbl <- tibble(nse = runif(n, 0, 100)) |>
+    mutate(estudio_años = floor(rnorm(n, 1.5 * sqrt(nse), 1))) |>
+    mutate(estudio_años = pmax(0, pmin(17, estudio_años))) |> 
+    mutate(habilidad = rnorm(n, 100 + 0.1 * nse, 1)) |> 
+    mutate(z = 100 + (habilidad/100) * ( 20 * nse + 5 * (estudio_años))) |> 
+    mutate(ingreso = pmax(0, 0.2*(z + rnorm(n, 0, 150))))
+  obs_tbl <- dat_tbl |> 
+    mutate(tipo = tipo, id = 1:n)
+  obs_tbl |> select(id, tipo, x = estudio_años, y = ingreso)
+}
+```
+
+## Muestra de entrenamiento y prueba
+
+Mismo proceso generador de datos:
+
+```{r}
+set.seed(12)
+entrena_tbl <- genera_datos(n = 20, tipo = "entrena")
+prueba_tbl <- genera_datos(n = 2000, tipo = "prueba")
+```
+
+## Vecinos más cercanos
+
+```{r}
+# modelo
+modelo_kvecinos <- nearest_neighbor(
+    neighbors = nrow(entrena_tbl) * 0.1, 
+    weight_func = "gaussian") |> 
+  set_mode("regression") |> 
+  set_engine("kknn")
+# preprocesamiento
+receta <- recipe(y ~ x, data = entrena_tbl |> select(x, y))
+# flujo
+flujo <- workflow() |> 
+  add_recipe(receta) |> 
+  add_model(modelo_kvecinos)
+# Ajustamos flujo
+flujo_ajustado_vecinos <- fit(flujo, entrena_tbl)
+```
+
+Evaluación:
+
+
+```{r}
+eval_tbl <- bind_rows(prueba_tbl, entrena_tbl) 
+resumen_vmc_tbl <- 
+  predict(flujo_ajustado_vecinos, eval_tbl) |> 
+  mutate(predictor = "vecinos") |> 
+  bind_cols(eval_tbl) |> 
+  group_by(predictor, tipo) |> 
+  rmse(truth = y, estimate = .pred) 
+resumen_vmc_tbl
+```
+
+
+
+```{r}
+años_x <- tibble(x = seq(0, 17, by = 0.5))
+preds_vmc <- predict(flujo_ajustado_vecinos, años_x) |> 
+  bind_cols(años_x) |> mutate(predictor = "vecinos")
+preds_graf_tbl <- preds_vmc
+ggplot(entrena_tbl, aes(x = x)) +
+  geom_line(data = preds_graf_tbl, 
+            aes(y = .pred, group = predictor), size = 1.1) +
+  geom_point(aes(y = y), colour = "red") 
+```
+
+
+## Regresión lineal
+
+```{r}
+modelo_lineal <- linear_reg() |> 
+  set_mode("regression") |> 
+  set_engine("lm")
+flujo_lineal <- workflow() |> 
+  add_recipe(receta) |> 
+  add_model(modelo_lineal)
+# Ajustamos
+flujo_ajustado_lineal <- fit(flujo_lineal, entrena_tbl)
+```
+
+Hacemos predicciones y calculamos el error:
+
+```{r}
+eval_tbl <- bind_rows(prueba_tbl, entrena_tbl) 
+resumen_lineal_tbl <- 
+  predict(flujo_ajustado_lineal, eval_tbl) |> 
+  mutate(predictor = "lineal") |> 
+  bind_cols(eval_tbl) |> 
+  group_by(predictor, tipo) |> 
+  rmse(truth = y, estimate = .pred) 
+resumen_lineal_tbl
+```
+
+```{r}
+preds_1 <- predict(flujo_ajustado_lineal, tibble(x = 0:17)) |> 
+  bind_cols(tibble(x = 0:17, predictor = "lineal"))
+preds_graf_tbl <- bind_rows(preds_1, preds_graf_tbl)
+ggplot(entrena_tbl, aes(x = x)) +
+  geom_point(aes(y = y), colour = "red") +
+  geom_line(data = preds_graf_tbl |> filter(predictor %in% c("lineal")), 
+            aes(y = .pred, group = predictor), size = 1.1) 
+```
