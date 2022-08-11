@@ -323,8 +323,9 @@ En nuestro ejemplo, en lugar de usar un número fijo de vecinos, utilizaremos
 
 ```{r}
 # modelo
-modelo_kvecinos <- nearest_neighbor(neighbors = nrow(entrena_tbl) * 0.1, 
-                                    weight_func = "gaussian") |> 
+modelo_kvecinos <- nearest_neighbor(
+    neighbors = nrow(entrena_tbl) * 0.1, 
+    weight_func = "gaussian") |> 
   set_mode("regression") |> 
   set_engine("kknn")
 # preprocesamiento
@@ -357,7 +358,8 @@ grande. Si graficamos podemos ver el problema:
 ```{r, fig.width=5, fig.height=3}
 preds_vmc <- predict(flujo_ajustado_vecinos, años_x) |> 
   bind_cols(años_x) |> mutate(predictor = "vecinos")
-preds_graf_tbl <- bind_rows(preds_vmc, preds_graf_tbl |> filter(predictor == "_óptimo"))
+preds_graf_tbl <- bind_rows(preds_vmc, preds_graf_tbl |> 
+  filter(predictor == "_óptimo"))
 g_1 <- ggplot(entrena_tbl, aes(x = x)) +
   geom_line(data = preds_graf_tbl |> filter(predictor != "regla"), 
             aes(y = .pred, colour = predictor), size = 1.1) +
@@ -502,8 +504,9 @@ Vamos a ver qué sucede con nuestros dos métodos si utilizamos una muestra gran
 ```{r}
 muestra_grande_tbl <- sample_n(poblacion_tbl, 10000) |> 
   mutate(tipo = "entrena")
-modelo_kvecinos <- nearest_neighbor(neighbors = nrow(muestra_grande_tbl) * 0.10, 
-                                    weight_func = "gaussian") |> 
+modelo_kvecinos <- nearest_neighbor(
+    neighbors = nrow(muestra_grande_tbl) * 0.10, 
+    weight_func = "gaussian") |> 
   set_mode("regression") |> 
   set_engine("kknn")
 # Ajustamos (no es necesario usar la población completa para este ejemplo)
@@ -526,7 +529,10 @@ resumen_lineal_lim_tbl <-
   bind_cols(eval_tbl) |> 
   group_by(predictor, tipo) |> 
   rmse(truth = y, estimate = .pred) 
-fmt_resumen(bind_rows(resumen_vmc_tbl, resumen_lineal_tbl, resumen_vecinos_lim_tbl, resumen_lineal_lim_tbl) |> arrange(predictor))
+fmt_resumen(bind_rows(resumen_vmc_tbl, 
+  resumen_lineal_tbl, 
+  resumen_vecinos_lim_tbl, 
+  resumen_lineal_lim_tbl) |> arrange(predictor))
 ```
 
 ¿Qué patrones ves en esta tabla? Podemos también graficar para entender mejor
