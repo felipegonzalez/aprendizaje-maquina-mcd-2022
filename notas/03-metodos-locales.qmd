@@ -37,11 +37,14 @@ Comenzamos con un ejemplo simple en dimensión baja:
 library(tidyverse)
 library(gt)
 auto <- read_csv("../datos/auto.csv")
-datos <- auto[, c('name', 'weight','year', 'mpg', 'displacement')]
-datos <- datos %>% mutate(
-  peso_kg = weight * 0.45359237,
-  rendimiento_kpl = mpg * (1.609344 / 3.78541178), 
-  año = year)
+# seleccionar variables y poner en sistema métrico
+datos <- auto |> 
+  select(name, weight, year, mpg, displacement) |> 
+  mutate(
+    peso_kg = weight * 0.45359237,
+    rendimiento_kpl = mpg * (1.609344 / 3.78541178), 
+    año = year
+  )
 ```
 
 Vamos a separa en muestra de entrenamiento y de prueba estos datos. Podemos
@@ -61,7 +64,8 @@ nrow(datos_prueba)
 Vamos a usar año y peso de los coches para predecir su rendimiento:
 
 ```{r}
-ggplot(datos_entrena, aes(x = peso_kg, y = rendimiento_kpl, colour = año)) +
+ggplot(datos_entrena, 
+  aes(x = peso_kg, y = rendimiento_kpl, colour = año)) +
   geom_point()
 ```
 
@@ -75,41 +79,54 @@ La función de predicción ajustada es entonces:
 vmc_1 <- nearest_neighbor(neighbors = tune(), weight_func = "gaussian") |>  
   set_engine("kknn") |>  
   set_mode("regression")
-receta_vmc <- recipe(rendimiento_kpl ~ peso_kg + año, datos_entrena) |> 
+receta_vmc <- recipe(
+  rendimiento_kpl ~ peso_kg + año, datos_entrena) |> 
   step_normalize(all_predictors()) 
 flujo_vecinos <- workflow() |>  
   add_recipe(receta_vmc) |> 
   add_model(vmc_1)
+# definir parámetros que nos interesa explorar
 vecinos_params <- parameters(neighbors(range = c(1, 100)))
+# definir cuáles valores de los parámetros exploramos
 vecinos_grid <- grid_regular(vecinos_params, levels = 100)
+mis_metricas <- metric_set(rmse)
 ```
 
+
+En la siguiente gráfica mostramos cómo cambia el error de los
+las predicciones sobre la muestra de prueba separada de la de
+entrenamiento. En este caso le llamaremos *muestra de validación* porque
+más adelante veremos que puede ser conveniente dividir en entrenamiento-validación-prueba en lugar de usar sólo 2 particiones:
+
 ```{r, fig.width=4, fig.height=3}
-mis_metricas <- metric_set(rmse)
 r_split <- manual_rset(list(datos_split), "validación")
 vecinos_eval_tbl <- tune_grid(flujo_vecinos,
                             resamples = r_split,
                             grid = vecinos_grid,
                             metrics = mis_metricas) 
-vecinos_ajustes_tbl <- vecinos_eval_tbl %>%
-  unnest(cols = c(.metrics)) %>% 
+vecinos_ajustes_tbl <- vecinos_eval_tbl |>
+  unnest(cols = c(.metrics)) |> 
   select(id, neighbors, .metric, .estimate)
 ggplot(vecinos_ajustes_tbl, aes(x = neighbors, y = .estimate)) +
-  geom_line() + geom_point()
+  geom_line() + geom_point() +
+  ylab("Error de validación") + xlab("Vecinos")
 ```
 
 Donde obtenemos más o menos lo que esperaríamos: modelos con muy pocos vecinos
-o demasiados vecinos se desempeñan relativamente mal. Podemos visualizar
+o demasiados vecinos se desempeñan relativamente mal. 
+
+Seleccionaremos el mejor modelo según el error estimado de predicción y
+visualizamos primero 
 nuestras predicciones y los datos de entrenamiento de la siguiente forma:
 
 ```{r, fig.width=5, fig.height=3}
 mejor_rmse <- select_best(vecinos_eval_tbl, metric = "rmse")
 ajuste_1 <- finalize_workflow(flujo_vecinos, mejor_rmse) |> 
   fit(datos_entrena)
-dat_graf <- tibble(peso_kg = seq(900, 2200, by = 10)) %>% 
+dat_graf <- tibble(peso_kg = seq(900, 2200, by = 10)) |> 
   crossing(tibble(año = c(70, 75, 80)))
-dat_graf <- dat_graf %>% 
-  mutate(pred_1 = predict(ajuste_1, dat_graf) %>% pull(.pred))
+dat_graf <- dat_graf |> 
+  mutate(pred_1 = predict(ajuste_1, dat_graf) |> pull(.pred))
 ggplot(datos_entrena, aes(x = peso_kg, group = año, colour = año)) +
   geom_point(aes(y = rendimiento_kpl), alpha = 0.6) + 
   geom_line(data = dat_graf, aes(y = pred_1),  size = 1.2)
@@ -152,16 +169,16 @@ $Y$ para cada caso:
 ```{r, fig.width = 5, fig.height=4}
 fun_exp <- function(x) exp(-8 * sum(x ^ 2))
 x <- map(1:1000, ~ runif(2, -1, 1))
-dat <- tibble(x = x) %>% 
+dat <- tibble(x = x) |> 
         mutate(y = map_dbl(x, fun_exp))
-ggplot(dat %>% mutate(x_1 = map_dbl(x, 1), x_2 = map_dbl(x, 2)), 
+ggplot(dat |> mutate(x_1 = map_dbl(x, 1), x_2 = map_dbl(x, 2)), 
        aes(x = x_1, y = x_2, colour = y)) + geom_point()
 ```
 
 La mejor predicción en $x_0 = (0,0)$ es $f((0,0)) = 1$. El vecino más
 cercano al origen es
 ```{r}
-dat <- dat %>% mutate(dist_origen = map_dbl(x, ~ sqrt(sum(.x^2)))) %>% 
+dat <- dat |> mutate(dist_origen = map_dbl(x, ~ sqrt(sum(.x^2)))) |> 
   arrange(dist_origen)
 mas_cercano <- dat[1, ]
 mas_cercano
@@ -174,9 +191,9 @@ Ahora intentamos hacer lo mismo para dimensión $p=8$.
 
 ```{r}
 x <- map(1:1000, ~ runif(8, -1, 1))
-dat <- tibble(x = x) %>% 
+dat <- tibble(x = x) |> 
        mutate(y = map_dbl(x, fun_exp))
-dat <- dat %>% mutate(dist_origen = map_dbl(x, ~ sqrt(sum(.x^2)))) %>% 
+dat <- dat |> mutate(dist_origen = map_dbl(x, ~ sqrt(sum(.x^2)))) |> 
   arrange(dist_origen)
 mas_cercano <- dat[1, ]
 mas_cercano
@@ -217,7 +234,7 @@ Los datos se generan de la siguiente forma:
 ```{r}
 simular_datos <- function(p = 40){
     x <- map(1:1000,  ~ runif(p, -1, 1))
-    dat <- tibble(x = x) %>% mutate(y = map_dbl(x, fun_cuad)) 
+    dat <- tibble(x = x) |> mutate(y = map_dbl(x, fun_cuad)) 
     dat
 }
 ```
@@ -226,7 +243,7 @@ Por ejemplo para dimensión baja $p=1$ (nótese que una aproximación
 lineal es razonable):
 
 ```{r, fig.width = 4, fig.height= 3}
-ejemplo <- simular_datos(p = 1) %>% mutate(x = unlist(x))
+ejemplo <- simular_datos(p = 1) |> mutate(x = unlist(x))
 ggplot(ejemplo, aes(x = x, y = y)) + geom_point() +
     geom_smooth(method = "lm")
 ```
@@ -236,8 +253,8 @@ Ahora repetimos el proceso en dimensión $p=40$: simulamos las entradas, y aplic
 
 ```{r}
 vmc_1 <- function(dat){
-    dat <- dat %>% 
-        mutate(dist_origen = map_dbl(x, ~ sqrt(sum(.x^2)))) %>% 
+    dat <- dat |> 
+        mutate(dist_origen = map_dbl(x, ~ sqrt(sum(.x^2)))) |> 
         arrange(dist_origen)
         mas_cercano <- dat[1, ]
         mas_cercano$y
@@ -255,7 +272,7 @@ regresion_pred <- function(dat){
     p <- length(dat$x[[1]])
     dat_reg <- cbind(
         y = dat$y, 
-        x = matrix(unlist(dat$x), ncol = p, byrow=T)) %>% 
+        x = matrix(unlist(dat$x), ncol = p, byrow=T)) |> 
         as.data.frame()
     mod_lineal <- lm(y ~ ., dat = dat_reg)
     origen <- data.frame(matrix(rep(0, p), 1, p))
@@ -279,7 +296,7 @@ sims <- map(1:200, function(i){
     tibble(rep = i, 
            error = c(abs(vmc_y - 0.5), abs(reg_y - 0.5)), 
             tipo = c("vmc", "regresion"))
-}) %>% bind_rows
+}) |> bind_rows()
 ggplot(sims, aes(x = tipo, y = error)) + geom_boxplot() 
 ```
 
@@ -288,7 +305,7 @@ que el de regresión. El error esperado es para vmc es más de doble
 que el de regresión:
 
 ```{r}
-sims %>% group_by(tipo) %>% 
+sims |> group_by(tipo) |> 
   summarise(media_error = mean(error)) |> 
   gt()
 ```
@@ -302,8 +319,8 @@ de toda la información para construir predicción con sesgo y varianza bajas.
 En contraste, vecinos más cercanos sufre de varianza alta.
 
 ::: callout-note
-# Métodos locales
-Los métodos localesa muchas veces no funcionan bien en dimensión alta. La razón es 
+# Métodos locales sin estructura
+Los métodos locales muchas veces no funcionan bien en dimensión alta. La razón es 
 que:
   
 - El sesgo es alto, pues promediamos puntos muy lejanos al lugar donde queremos predecir
