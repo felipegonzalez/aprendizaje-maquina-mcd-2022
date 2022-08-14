@@ -488,13 +488,14 @@ En nuestros dos ejemplos, intuímos que vecinos más cercanos sufre más de vari
 o sobreajuste y regresión lineal de sesgo. Podemos verificar viendo qué pasa con
 los dos métodos cuando los entrenamos con la población completa.
 
-**Observación**: Generalmente el término variabilidad se refiere a la variación de un estimador alrededor de su valor esperado, cuando observamos sus distintas posibles estimadociones a los largo de varias muestras de entrenamiento. Podemos descomponer el segundo término 
+**Observación**: Usualmente el término variabilidad se refiere a la variación de un estimador alrededor de su valor esperado, cuando observamos sus distintas posibles estimaciones a lo largo de varias muestras de entrenamiento. Podemos descomponer el segundo término 
 de arriba como:
 
-$$ f_{\lim}(\mathbf{x}) - \hat{f_{\mathcal{L}}}(\mathbf{x}) = f_{\lim}(\mathbf{x}) - E(\hat{f_{\mathcal{L}}}(\mathbf{x})) + E(\hat{f_{\mathcal{L}}}(\mathbf{x})) - \hat{f_{\mathcal{L}}}(\mathbf{x})$$
+$$\hat{f_{\mathcal{L}}}(\mathbf{x}) - f_{\lim}(\mathbf{x})  = \hat{f_{\mathcal{L}}}(\mathbf{x}) -  E(\hat{f_{\mathcal{L}}}(\mathbf{x})) + E(\hat{f_{\mathcal{L}}}(\mathbf{x})) - f_{\lim}(\mathbf{x}) $$
 donde el valor esperado es sobre todas las muestras de entrenamiento
-de un tamaño fijo $n$ que podríamos obtener. El segundo
-término puede llamarse variabilidad, mientras que el primero es el sesgo que obtenemos al usar una muestra $n$ finita.
+de un tamaño fijo $n$ que podríamos obtener. El primer 
+término puede llamarse variabilidad, mientras que el segundo es el sesgo que obtenemos al usar una muestra $n$ finita (para algunos métodos,
+el segundo término puede ser igual a cero).
 
 
 ## Ejemplo: fuentes de error
