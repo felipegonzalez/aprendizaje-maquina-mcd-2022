@@ -469,33 +469,57 @@ se hace muy grande.
 
 Podemos refinar nuestra descomposición y escribir:
 
-$$\mathbf{y} - \hat{f_{\mathcal{L}}}(\mathbf{x}) = \underbrace{f^* (\mathbf{x}) - f_{\lim}(\mathbf{x})}_\text{sesgo} + 
-  \underbrace{f_{\lim}(\mathbf{x}) - \hat{f_{\mathcal{L}}}(\mathbf{x})}_\text{variabilidad} + 
+$$\mathbf{y} - \hat{f_{\mathcal{L}}}(\mathbf{x}) = \underbrace{f^* (\mathbf{x}) - f_{\lim}(\mathbf{x})}_\text{sesgo-especificacion} + 
+  \underbrace{f_{\lim}(\mathbf{x}) - \hat{f_{\mathcal{L}}}(\mathbf{x})}_\text{error-estimacion} + 
   \underbrace{y - f^*(\mathbf{x})}_\text{irreducible}.$$
 
 El error reducible ahora se descompone en dos partes:
 
-- El **sesgo** o subajuste: que se debe a la incapacidad de nuestro modelo
+- El **sesgo de especificacion**: que se debe a la incapacidad de nuestro modelo
 de capturar la forma del predictor óptimo, incluso conociendo toda la población. Este término
 no depende de la muestra de entrenamiento: depende de la capacidad de nuestro método
 para aprender en condiciones ideales.
-- La **variabilidad** o error de estimación o sobreajuste: este error resulta
+- El **error de estimación**: este error resulta
 de que tenemos información limitada de la población, y nuestro ajuste se aleja
 de lo que obtendríamos con información completa. Esta parte del error varía
 dependiendo de la muestra particular de entrenamiento que utilizamos.
 
-En nuestros dos ejemplos, intuímos que vecinos más cercanos sufre más de variabilidad
-o sobreajuste y regresión lineal de sesgo. Podemos verificar viendo qué pasa con
-los dos métodos cuando los entrenamos con la población completa.
+En nuestros dos ejemplos, intuímos que vecinos más cercanos sufre más de error de estimación y regresión lineal de sesgo de especificación, lo cual verificamos más adelante.
 
-**Observación**: Usualmente el término variabilidad se refiere a la variación de un estimador alrededor de su valor esperado, cuando observamos sus distintas posibles estimaciones a lo largo de varias muestras de entrenamiento. Podemos descomponer el segundo término 
-de arriba como:
+Podemos refinar aún más nuestra descomposición considerando qué pasa
+con distintas muestras del mismo tamaño para entender mejor el
+error de estimación. Si consideramos el valor esperado de nuestra predicción a lo largo de las posibles muestras $\mathcal L$ que podemos extraer, descomponemos el segundo término como:
+
 
 $$\hat{f_{\mathcal{L}}}(\mathbf{x}) - f_{\lim}(\mathbf{x})  = \hat{f_{\mathcal{L}}}(\mathbf{x}) -  E(\hat{f_{\mathcal{L}}}(\mathbf{x})) + E(\hat{f_{\mathcal{L}}}(\mathbf{x})) - f_{\lim}(\mathbf{x}) $$
 donde el valor esperado es sobre todas las muestras de entrenamiento
 de un tamaño fijo $n$ que podríamos obtener. El primer 
 término puede llamarse variabilidad, mientras que el segundo es el sesgo que obtenemos al usar una muestra $n$ finita (para algunos métodos,
-el segundo término puede ser igual a cero).
+el segundo término puede ser igual a cero). Desde este punto de vista,
+podemos hacer también la descomposición:
+
+$$\mathbf{y} - \hat{f_{\mathcal{L}}}(\mathbf{x}) = \underbrace{f^* (\mathbf{x}) - f_{lim}(\mathbf{x})}_\text{sesgo-especificacion}  + \underbrace{f_{lim}(\mathbf{x}) - E(\hat{f_{\mathcal{L}}}(\mathbf{x}))}_\text{sesgo-estimacion} +   \underbrace{E(\hat{f_{\mathcal{L}}}(\mathbf{x})) - \hat{f_{\mathcal{L}}}(\mathbf{x})}_\text{variabilidad} + \underbrace{ \mathbf{y} - f^*(\mathbf{x})}_\text{irreducible}.$$
+
+Tenemos entonces cuatro términos:
+
+- El sesgo de especificación mide la capacidad del modelo de utilizar datos de muestras cada vez más grandes. No depende de una muestra
+particular ni su tamaño.
+- El sesgo de estimación mide en promedio qué tan lejos está la estimación del ideal con datos completos, y depende de la naturaleza de
+la muestra de entrenamiento, incluyendo su tamaño.
+- La variabilidad es el único término que depende de la muestra particular que usamos. También depende del tamaño de muestra que utilizamos.
+
+Los dos primeros términos usualmente se agrupan en un sólo término de sesgo, y obtenemos la siguiente definición usual:
+
+::: callout-note
+# Descomposición sesgo-varianza
+
+El error total (la diferencia entre observado y nuestra predicción) se descompone como:
+
+$$\mathbf{y} - \hat{f_{\mathcal{L}}}(\mathbf{x}) = \underbrace{f^* (\mathbf{x}) - E(\hat{f_{\mathcal{L}}}(\mathbf{x}))}_\text{sesgo} +   \underbrace{E(\hat{f_{\mathcal{L}}}(\mathbf{x})) - \hat{f_{\mathcal{L}}}(\mathbf{x})}_\text{variabilidad} + \underbrace{y - f^*(\mathbf{x})}_\text{irreducible}.$$
+:::
+
+Que explica qué sucede con distintas posibles muestras de entrenamiento
+de tamaño fijo. El *sesgo* en este caso significa en promedio qué tan lejos nuestro predictor está del óptimo, y la variabilidad qué tanto puede variar nuestra predicción con respecto al promedio.    
 
 
 ## Ejemplo: fuentes de error
@@ -559,7 +583,7 @@ g_2 <- ggplot(datos_tbl, aes(x = x)) +
 g_1 + g_2 + plot_layout(guides = 'collect')
 ```
 
-Esto quiere decir que:
+Esto patrón sugiere que:
 
 -  Nuestro método de vecinos más cercanos no tiene errores por sesgo, sino más
 bien por sobreajuste o variabilidad.
@@ -570,21 +594,18 @@ por sesgo
 - El error por sesgo se reduce usando métodos más flexibles o menos
 restringidos que puedan capturar patrones claros en los datos. 
 - Para reducir la variabilidad podemos usar métodos más simples o restringidos
-que no capturen tanto ruido. Aumentar la muestra de entrenamiento puede ayudar
-también.
+que no capturen tanto ruido. 
 - El error irreducible se puede reducir incorporando información adicional relevante
 a las entradas.
 
-¿Qué cosas aumentan o disminuyen la complejidad de nuestro predictor?
+::: callout-note
+# Complejidad y error de predicción
 
-- Quitar variables reduce la complejidad, pero potencialmente aumenta el sesgo y
-el error irreducible.
-- Agregar variables derivadas puede reducir el sesgo y el error irreducible, 
-pero también puede incrementar la variabilidad o el sobreajuste.
-- Restringir el ajuste de alguna forma o penalizar predictores poco creíbles
-reduce la variabilidad, pero aumenta el sesgo.
-- Usar métodos más complicados en general o con más parámetros puede reducir el
-sesgo, pero quizá también aumenta el sobreajuste.
+- Métodos de predicción más flexibles o complejos tienden a sufrir
+más de error por variabilidad, pues dependen fuertemente de la muestra utilizada.
+- Métodos de predicción más rígidos o simples tienden a sufrir más error por sesgo, pues dependen menos de la muestra utilizada.
+:::
+
 
 
 ## Agregando más información y error irreducible

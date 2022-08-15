@@ -146,6 +146,8 @@ lejanos que inducen sesgo.
 - No es necesario hacer $k$ demasiado chica, de forma que nuestras predicciones
 sean inestables.
 
+
+
 ::: callout-note
 # Maldición de la dimensionalidad
 
@@ -153,10 +155,16 @@ En dimensión alta, para la mayoría de las $\mathbf{x}$ donde queremos hacer pr
 típicamente no existen vecinos cercanos, aún para conjuntos de entrenamiento muy grandes.
 :::
 
-Esto implica que incluso con $k$ chica (que produce sobreajuste) sufrimos simultáneamente
-de sesgo (por extrapolación a regiones no relevantes). Esto implica que en estos
-casos (que son muy comunes) métodos locales no funcionan bien independientemente de cómo
-afinemos el algoritmo.
+Esto implica que para tamaños típicos $n$ de muestra de entrenamiento:
+
+- Si tomamos $k$ chica, el sesgo por especificación es chico (con muestras muy grandes), pero el sesgo de estimación puede ser *grande* pues estamos de todas formas obigados a buscar vecinos lejos de donde queremos predecir.
+
+- Si tomamos $k$ más grande, podemos quizá reducir sesgo de estimación,
+pero entonces el sesgo por especificación puede ser más grande (pues promediamos sobre regiones relativamente grandes), y perdemos la supuesta ventaja del método local.
+
+- Para que una $k$ chica tenga sesgo de estimación bajo, el tamaño $n$
+de la muestra
+de entrenamiento tiene que ser gigantesca.
 
 
 #### Ejemplo {-}
