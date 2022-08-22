@@ -157,10 +157,11 @@ típicamente no existen vecinos cercanos, aún para conjuntos de entrenamiento m
 
 Esto implica que para tamaños típicos $n$ de muestra de entrenamiento:
 
-- Si tomamos $k$ chica, el sesgo por especificación es chico (con muestras muy grandes), pero el sesgo de estimación puede ser *grande* pues estamos de todas formas obigados a buscar vecinos lejos de donde queremos predecir.
+- Si tomamos $k$ chica, el sesgo por especificación es chico (muestras muy grandes), pero el sesgo de estimación puede ser *grande* pues estamos de todas formas obligados a buscar vecinos lejos de donde queremos predecir.
 
-- Si tomamos $k$ más grande, podemos quizá reducir sesgo de estimación,
-pero entonces el sesgo por especificación puede ser más grande (pues promediamos sobre regiones relativamente grandes), y perdemos la supuesta ventaja del método local.
+- Pero si tomamos $k$ más grande, 
+el sesgo por especificación tiende ser más grande (pues promediamos sobre regiones relativamente grandes). Perdemos la supuesta ventaja del método local, 
+aún cuando quizá reduzcamos el sesgo de estimación.
 
 - Para que una $k$ chica tenga sesgo de estimación bajo, el tamaño $n$
 de la muestra
