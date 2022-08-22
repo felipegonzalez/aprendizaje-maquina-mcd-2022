@@ -179,6 +179,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="./05-regularizacion-1.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regularización y variabilidad</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="./99-referencias.html" class="sidebar-item-text sidebar-link">Referencias</a>
   </div>
 </li>
@@ -345,8 +350,8 @@ Maldición de la dimensionalidad
 </div>
 <p>Esto implica que para tamaños típicos <span class="math inline">\(n\)</span> de muestra de entrenamiento:</p>
 <ul>
-<li><p>Si tomamos <span class="math inline">\(k\)</span> chica, el sesgo por especificación es chico (con muestras muy grandes), pero el sesgo de estimación puede ser <em>grande</em> pues estamos de todas formas obigados a buscar vecinos lejos de donde queremos predecir.</p></li>
-<li><p>Si tomamos <span class="math inline">\(k\)</span> más grande, podemos quizá reducir sesgo de estimación, pero entonces el sesgo por especificación puede ser más grande (pues promediamos sobre regiones relativamente grandes), y perdemos la supuesta ventaja del método local.</p></li>
+<li><p>Si tomamos <span class="math inline">\(k\)</span> chica, el sesgo por especificación es chico (muestras muy grandes), pero el sesgo de estimación puede ser <em>grande</em> pues estamos de todas formas obligados a buscar vecinos lejos de donde queremos predecir.</p></li>
+<li><p>Pero si tomamos <span class="math inline">\(k\)</span> más grande, el sesgo por especificación tiende ser más grande (pues promediamos sobre regiones relativamente grandes). Perdemos la supuesta ventaja del método local, aún cuando quizá reduzcamos el sesgo de estimación.</p></li>
 <li><p>Para que una <span class="math inline">\(k\)</span> chica tenga sesgo de estimación bajo, el tamaño <span class="math inline">\(n\)</span> de la muestra de entrenamiento tiene que ser gigantesca.</p></li>
 </ul>
 <section id="ejemplo-1" class="level4 unnumbered">
