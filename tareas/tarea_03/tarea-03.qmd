@@ -1,0 +1,104 @@
+---
+title: "Tarea 3: preprocesamiento"
+format: html
+editor: visual
+---
+
+
+Considera la siguiente cadena de preprocesamiento que vimos en clase:
+
+```{r, message = FALSE}
+library(tidyverse)
+library(tidymodels)
+library(broom)
+source("./R/casas_traducir_geo.R")
+set.seed(83)
+casas_split <- initial_split(casas, prop = 0.75)
+casas_entrena <- training(casas_split)
+receta_casas <- recipe(precio_miles ~ 
+           nombre_zona + 
+           area_hab_m2 + area_garage_m2 + area_sotano_m2 + 
+           area_lote_m2 + 
+           año_construccion + 
+           calidad_gral + calidad_garage + calidad_sotano + 
+           num_coches  + 
+           aire_acondicionado + condicion_venta, 
+           data = casas_entrena) |> 
+  step_filter(condicion_venta == "Normal") |> 
+  step_select(-condicion_venta, skip = TRUE) |> 
+  step_cut(calidad_gral, breaks = c(3, 5, 7, 8), 
+           include_outside_range = TRUE) |>
+  step_novel(nombre_zona, calidad_sotano, calidad_garage) |> 
+  step_unknown(calidad_sotano, calidad_garage) |> 
+  step_other(nombre_zona, threshold = 0.02, other = "otras") |> 
+  step_mutate(area_sotano_m2 = ifelse(is.na(area_sotano_m2), 0, area_sotano_m2)) |> 
+  step_mutate(area_garage_m2 = ifelse(is.na(area_garage_m2), 0, area_garage_m2)) |> 
+  step_dummy(nombre_zona, calidad_gral, calidad_garage, calidad_sotano, aire_acondicionado) |> 
+  step_interact(terms = ~ area_hab_m2:starts_with("calidad_gral")) |> 
+  step_interact(terms = ~ area_hab_m2:starts_with("nombre_zona")) |> 
+  step_interact(terms = ~ area_garage_m2:starts_with("calidad_garage")) |> 
+  step_interact(terms = ~ area_sotano_m2: starts_with("calidad_sotano")) |>
+  step_nzv(all_predictors(), freq_cut = 900 / 1, unique_cut = 0.5)
+
+```
+
+Entrenamos la receta y vemos cuántos casos y columnas tenemos:
+
+```{r}
+receta_casas_prep <- prep(receta_casas, verbose = TRUE)
+datos_tbl <- juice(receta_casas_prep)
+dim(datos_tbl)
+```
+
+*Pregunta 1*: ¿Cuántas variables originales usamos para este modelo, comparado con el número de 
+entradas derivadas?
+
+*Pregunta 2*: ¿qué variables fueron procesadas para producir entradas con codificación dummy?
+ Extrae de *datos_tbl* las columnas que corresponden a *calidad_gral*. ¿Cuántas columnas hay y por qué? Puedes ver los nombres de las columnas haciendo:
+
+```{r}
+names(datos_tbl)
+```
+
+*Pregunta 3*: ¿qué entradas fueron creadas como interacciones de variables originales?
+Explica la razón de intentar utilizar estas interacciones. por ejemplo, area_hab y
+la zona.
+
+*Pregunta 4* Explica cómo se construye la interacción de area_hab_m2 con nombre de zona.
+¿Cómo se ven las columnas correspondientes a esta interacción? ¿Por qué estas columnas
+tienen muchos ceros?
+
+
+*Pregunta 5*: Ajusta un modelo y cuenta el número de coeficientes. La razón del preprocesamiento
+es mejorar el desempeño de predictivo del modelo. ¿Por qué un modelo más complejo
+y con más coeficientes puede dar mejores resultados que uno más simple sin interacciones,
+por ejemplo? ¿Es por reducción de sesgo o de varianza?
+
+```{r}
+flujo_casas <- workflow() |> 
+  add_recipe(receta_casas) |> 
+  add_model(linear_reg() |> set_engine("lm"))
+ajuste <- fit(flujo_casas, casas_entrena)
+```
+
+Aunque no es de interés particular para nosotros por el momento, examinamos
+los coeficientes (que no son tan simples de interpretar como discutiremos más adelante):
+
+```{r}
+ajuste |> tidy() |> 
+  mutate(across(where(is.numeric), round, 2)) |> 
+  select(term, estimate) 
+```
+
+
+
+Finalmente, puedes hacer predicciones con este modelo como sigue:
+
+
+```{r}
+predict(ajuste, casas_entrena)
+```
+
+**Pregunta 7** (opcional) Quita la última línea de preprocesamiento step_nvz (que quita
+variables con varianza cercana a cero). ¿Qué pasa cuando intentas hacer predicciones?
+En este ejemplo particular, ¿qué columnas elimina este paso? ¿El objetivo de este filtro es reducir varianza o sesgo?
