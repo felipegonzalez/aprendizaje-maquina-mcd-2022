@@ -243,12 +243,14 @@ Ozono para distintos días en Nueva York (@chambers83):
 
 ```{r, fig.width = 6, fig.height = 3}
 air_data <- airquality |> 
-    mutate(Wind_cat = cut(Wind, quantile(Wind, c(0, 0.33, 0.66, 1)), include.lowest = T)) |> 
+    mutate(Wind_cat = cut(Wind, quantile(Wind, c(0, 0.33, 0.66, 1)), 
+                          include.lowest = T)) |> 
     filter(!is.na(Ozone) & !is.na(Solar.R))
 air <- air_data
-ggplot(air, aes(x = Solar.R, y = Ozone,  colour = Temp)) + geom_point() +
-    facet_wrap(~Wind_cat, ncol = 3) + 
-    scale_colour_gradientn(colours = rainbow(2, rev = TRUE))
+ggplot(air, aes(x = Solar.R, y = Ozone,  colour = Temp)) + 
+  geom_point() +
+  facet_wrap(~Wind_cat, ncol = 3) + 
+  scale_colour_gradientn(colours = rainbow(2, rev = TRUE))
 ```
 La gráfica muestra algunas interacciones y relaciones no lineales. Formulamos
 un modelo lineal como sigue:
@@ -272,14 +274,17 @@ ajuste_ozono <- workflow() |>
 pred_grid <- expand_grid(Wind = c(5,10,15), 
                          Temp = seq(60, 90, 10), 
                          Solar.R = seq(20, 300, by = 10)) |> 
-    mutate(Wind_cat = cut(Wind, quantile(airquality$Wind, c(0, 0.33, 0.66, 1)), include.lowest = T))
+    mutate(Wind_cat = cut(Wind, 
+           quantile(airquality$Wind, c(0, 0.33, 0.66, 1)), 
+           include.lowest = T))
 pred_grid <- pred_grid |> 
   bind_cols(predict(ajuste_ozono, pred_grid))
 g_lineal <- ggplot(air, aes(x = Solar.R, colour = Temp)) + 
     geom_point(aes(y = Ozone)) +
     facet_wrap( ~ Wind_cat) + 
     scale_colour_gradientn(colours = rainbow(2, rev = TRUE)) +
-    geom_line(data = pred_grid, aes(y = .pred, group = interaction(Temp, Wind_cat)), size = 1) +
+    geom_line(data = pred_grid, 
+      aes(y = .pred, group = interaction(Temp, Wind_cat)), size = 1) +
     labs(subtitle = "Curvas de modelo lineal, para viento = 5, 10, 15") 
 g_lineal
 ```
@@ -309,7 +314,9 @@ ajuste_ozono <- workflow() |>
 pred_grid <- expand_grid(Wind = c(5,10,15), 
                          Temp = seq(60, 90, 10), 
                          Solar.R = seq(10, 320, by = 10)) |> 
-    mutate(Wind_cat = cut(Wind, quantile(airquality$Wind, c(0, 0.33, 0.66, 1)), include.lowest = T))
+    mutate(Wind_cat = 
+           cut(Wind, quantile(airquality$Wind, c(0, 0.33, 0.66, 1)), 
+               include.lowest = T))
 pred_grid <- pred_grid |> 
   bind_cols(predict(ajuste_ozono, pred_grid))
 g_lineal <- ggplot(air, aes(x = Solar.R, colour = Temp)) + 
@@ -338,7 +345,8 @@ casas_split <- initial_split(casas, prop = 0.25)
 casas_entrena <- training(casas_split)
 receta_casas <- 
   recipe(precio_miles ~ calidad_gral +
-           area_hab_m2 + area_garage_m2 + area_sotano_m2 + area_2o_piso_m2 + 
+           area_hab_m2 + area_garage_m2 + area_sotano_m2 + 
+           area_2o_piso_m2 + 
            año_construccion + año_venta + condicion_venta +
            nombre_zona + 
            condicion_gral + 
@@ -350,24 +358,27 @@ receta_casas <-
          data = casas_entrena) |> 
   step_filter(condicion_venta == "Normal") |> 
   step_select(-condicion_venta, skip = TRUE) |> 
-  step_cut(calidad_gral, breaks = c(3, 5, 7, 8), include_outside_range = TRUE) |> 
-  step_cut(condicion_gral, breaks = c(3, 5, 7, 8), include_outside_range = TRUE) |> 
+  step_cut(calidad_gral, breaks = c(3, 5, 7, 8), 
+           include_outside_range = TRUE) |> 
+  step_cut(condicion_gral, breaks = c(3, 5, 7, 8), 
+           include_outside_range = TRUE) |> 
   step_mutate(sin_piso_2 = as.numeric(area_2o_piso_m2 == 0)) |>
   step_novel(tipo_sotano, calidad_sotano) |> 
   step_novel(condicion_exteriores, tipo_edificio, estilo) |> 
   step_unknown(tipo_sotano, calidad_sotano, new_level = "sin_sotano") |> 
   step_unknown(condicion_exteriores) |> 
   step_other(nombre_zona, threshold = 0.05) |> 
-  step_dummy(calidad_gral, condicion_gral, nombre_zona, aire_acondicionado,
+  step_dummy(calidad_gral, condicion_gral, 
+             nombre_zona, aire_acondicionado,
              calidad_sotano, tipo_sotano, condicion_exteriores, 
              tipo_edificio, estilo) |> 
   step_interact(terms = ~ c(area_hab_m2, area_garage_m2, 
-        area_sotano_m2, area_2o_piso_m2):starts_with("calidad_gral")) |> 
+    area_sotano_m2, area_2o_piso_m2):starts_with("calidad_gral")) |> 
   step_interact(terms = ~ area_sotano_m2:starts_with("calidad_sotano")) |> 
   step_interact(terms = ~ c(area_hab_m2, area_garage_m2, 
-        area_sotano_m2, area_2o_piso_m2):starts_with("condicion_gral")) |> 
+    area_sotano_m2, area_2o_piso_m2):starts_with("condicion_gral")) |> 
   step_interact(terms = ~ c(area_hab_m2, area_garage_m2, 
-        area_sotano_m2, area_2o_piso_m2):starts_with("nombre_zona")) |> 
+    area_sotano_m2, area_2o_piso_m2):starts_with("nombre_zona")) |> 
   step_zv(all_predictors())
 ```
 
@@ -412,7 +423,8 @@ ridge_ajustes_tbl |> gt()
 
 
 ```{r}
-ggplot(ridge_ajustes_tbl, aes(x = penalty, y = .estimate, colour = .metric)) + 
+ggplot(ridge_ajustes_tbl, 
+    aes(x = penalty, y = .estimate, colour = .metric)) + 
   geom_point() + geom_line() + scale_x_log10() 
 ```
 
@@ -460,7 +472,8 @@ grasa_pr <- testing(grasa_particion)
 # nota: con glmnet no es necesario normalizar, pero aquí lo hacemos
 # para ver los coeficientes en términos de las variables estandarizadas:
 grasa_receta <- recipe(grasacorp ~ ., grasa_ent) |> 
-  update_role(cadera, cuello, muñeca, tobillo, rodilla, new_role = "ninguno") |> 
+  update_role(cadera, cuello, muñeca, 
+              tobillo, rodilla, new_role = "ninguno") |> 
   step_normalize(all_predictors()) |> 
   prep()
 modelo_2 <- linear_reg(mixture = 0, penalty = 0) |> 
@@ -508,7 +521,8 @@ flujo_1 <- flujo_1 |> fit(grasa_ent)
 modelo_1 <- extract_fit_parsnip(flujo_1)
 coefs <- modelo_1 |> pluck("fit") |> tidy() |> 
   filter(term != "(Intercept)")
-ggplot(coefs, aes(x = lambda, y = estimate, colour = term)) +
+ggplot(coefs, 
+    aes(x = lambda, y = estimate, colour = term)) +
   geom_line(size = 1.4) + scale_x_log10() +
   scale_colour_manual(values = cbb_palette) +
   labs(subtitle = "Regularizacion L1")
@@ -576,4 +590,3 @@ modelo_enet <- linear_reg(mixture = 0.5, penalty = 0.05)
 # y si queremos afinar:
 modelo_enet <- linear_reg(mixture = tune(), penalty = tune())
 ```
-

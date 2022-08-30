@@ -491,15 +491,17 @@ definir por ejemplo igualmente espaciados en los datos.
 
 ```{r, fig.width = 5, fig.height=3}
 valores_x <- seq(-10, 110, 1)
-base_splines <- splines::ns(x = valores_x, knots = c(33, 66), 
-                            Boundary.knots = c(0, 100))
+base_splines <- splines::ns(x = valores_x, 
+  knots = c(33, 66), Boundary.knots = c(0, 100))
 spline_1 <- base_splines %*% c(1, 1, 1)
 spline_2 <- base_splines %*% c(-0.1, 2, 1)
 tibble(x = valores_x, y = spline_1, spline = 1) |> 
 bind_rows(tibble(x = valores_x, y = spline_2, spline = 2)) |> 
-  ggplot(aes(x = x, y = y, group = spline, colour = factor(spline))) + 
+  ggplot(aes(x = x, y = y, 
+    group = spline, colour = factor(spline))) + 
   geom_point() + geom_line() +
-  geom_vline(xintercept = c(0, 33, 66, 100), colour = "red")
+  geom_vline(xintercept = c(0, 33, 66, 100), 
+    colour = "red")
 ```
 
 Estos dos son ejemplos de funciones cúbicas por tramos y dos veces diferenciables,
@@ -521,7 +523,7 @@ library(tidyverse)
 library(gt)
 auto <- read_csv("../datos/auto.csv")
 datos <- auto[, c('name', 'weight','year', 'mpg', 'displacement')]
-datos <- datos %>% mutate(
+datos <- datos |> mutate(
   peso_kg = weight * 0.45359237,
   rendimiento_kpl = mpg * (1.609344 / 3.78541178), 
   año = year)
@@ -579,10 +581,10 @@ relación no lineal entre peso y rendimiento:
 
 
 ```{r, fig.width=5, fig.height=3}
-dat_graf <- tibble(peso_kg = seq(900, 2200, by = 10)) %>% 
+dat_graf <- tibble(peso_kg = seq(900, 2200, by = 10)) |>   
   crossing(tibble(año = c(70, 75, 80)))
-dat_graf <- dat_graf %>% 
-  mutate(pred_1 = predict(flujo_ajustado, dat_graf) %>% pull(.pred))
+dat_graf <- dat_graf |> 
+  mutate(pred_1 = predict(flujo_ajustado, dat_graf) |> pull(.pred))
 ggplot(datos_entrena, aes(x = peso_kg, group = año, colour = año)) +
   geom_point(aes(y = rendimiento_kpl), alpha = 0.6) + 
   geom_line(data = dat_graf, aes(y = pred_1),  size = 1.2)
@@ -614,8 +616,10 @@ receta_casas <- recipe(precio_miles ~
   step_novel(nombre_zona, calidad_sotano, calidad_garage) |> 
   step_unknown(calidad_sotano, calidad_garage) |> 
   step_other(nombre_zona, threshold = 0.02, other = "otras") |> 
-  step_mutate(area_sotano_m2 = ifelse(is.na(area_sotano_m2), 0, area_sotano_m2)) |> 
-  step_mutate(area_garage_m2 = ifelse(is.na(area_garage_m2), 0, area_garage_m2)) |>
+  step_mutate(area_sotano_m2 = 
+    ifelse(is.na(area_sotano_m2), 0, area_sotano_m2)) |> 
+  step_mutate(area_garage_m2 = 
+    ifelse(is.na(area_garage_m2), 0, area_garage_m2)) |>
  # step_log(area_lote_m2) |> 
   step_ns(año_construccion, deg_free = 2) |> 
   step_ns(calidad_gral, deg_free = 2) |> 
@@ -644,7 +648,8 @@ mejoría con respecto a nuestro modelo anterior:
 metricas <- metric_set(mape, mae, rmse, rsq)
 casas_prueba_normal <- testing(casas_split) |> 
   filter(condicion_venta == "Normal")
-metricas(casas_prueba_normal |> bind_cols(predict(ajuste, casas_prueba_normal)), 
+metricas(casas_prueba_normal |> 
+  bind_cols(predict(ajuste, casas_prueba_normal)), 
      truth = precio_miles, estimate = .pred) |> 
   gt() |> fmt_number(.estimate, decimals = 2)
 ```
@@ -652,7 +657,8 @@ metricas(casas_prueba_normal |> bind_cols(predict(ajuste, casas_prueba_normal)),
 Finalmente, examinamos la respuesta contra la predicción:
 
 ```{r, fig.width= 4, fig.height=3}
-casas_prueba_normal |> bind_cols(predict(ajuste, casas_prueba_normal)) |> 
+casas_prueba_normal |> 
+  bind_cols(predict(ajuste, casas_prueba_normal)) |> 
   ggplot(aes(x = .pred, y = precio_miles)) + geom_abline() + 
     geom_point(colour = "red") + coord_obs_pred()
 ```
