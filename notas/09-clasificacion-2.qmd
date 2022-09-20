@@ -117,14 +117,19 @@ un principio, y puede ser que se tomen varias decisiones con nuestros predictore
 dependiendo de la aplicación. Todas estas decisiones pueden tener costos diferentes.
 
 
-Podemos construir entonces un clasificador como sigue. Si $\hat{p}(x)$ en nuestra probabilidad
-estimada de positivo, entonces **la regla de clasificación con punto de corte* $\alpha$ es:
+Podemos construir entonces un clasificador como sigue. 
+
+::: callout-note
+## Clasificadores con punto de corte
+
+Si $\hat{p}(x)$ en nuestra probabilidad
+estimada de positivo, entonces **la regla de clasificación con punto de corte** $\alpha$ es:
 
 - Si $\hat{p}(x)\geq \alpha$, clasificamos el caso como positivo $\hat{y} = 1$
 - Si $\hat{p}(x)< \alpha$, clasificamos el caso como negativo $\hat{y} = 0$
+:::
 
 
-```{block2, type='comentario'}
 Hay dos tipos de errores en un clasificador binario (positivo - negativo):
 
 - Falsos positivos (fp): clasificar como positivo a un caso negativo.
@@ -132,7 +137,7 @@ Hay dos tipos de errores en un clasificador binario (positivo - negativo):
 
 A los casos clasificados correctamente les llamamos positivos verdaderos (pv)
 y negativos verdaderos (nv).
-```
+
 
 La **matriz de confusion** es entonces
 
@@ -254,8 +259,10 @@ corte de 0.5). Calcula
 adicionalmente con la muestra de prueba sus valores de especificidad y sensibilidad, y precisión y recall. 
 
 ```{r, warnings=FALSE, messages=FALSE}
-diabetes_ent <- as_tibble(MASS::Pima.tr) |> mutate(type = as.character(type))
-diabetes_pr <- as_tibble(MASS::Pima.te) |> mutate(type = as.character(type))
+diabetes_ent <- as_tibble(MASS::Pima.tr) |> 
+  mutate(type = as.character(type))
+diabetes_pr <- as_tibble(MASS::Pima.te) |> 
+  mutate(type = as.character(type))
 # normalizer
 receta_diabetes <- recipe(type ~ ., diabetes_ent) |>
   step_mutate(type = factor(type, levels = c("Yes", "No"))) |> 
@@ -266,10 +273,11 @@ library(keras)
 mod_1 <- logistic_reg() |> 
   set_engine("keras") |> 
   set_mode("classification") |>
-  set_args(epochs = 250, 
-           optimizer = optimizer_sgd(learning_rate = 0.3),
-           batch_size = nrow(diabetes_ent), 
-           verbose = FALSE) |> 
+  set_args(
+    epochs = 250, 
+    optimizer = optimizer_sgd(learning_rate = 0.3),
+    batch_size = nrow(diabetes_ent), 
+    verbose = FALSE) |> 
   fit(type ~ bmi + age, juice(receta_diabetes))
 # otra opcion es
 # mod_1 <- logistic_reg() |> set_engine("glm") |> set_mode("classification")
@@ -283,7 +291,8 @@ preds_prueba <- predict(mod_1, prueba_baked, type ='prob') |>
   bind_cols(prueba_baked)
 # usar punto de corte 0.5
 preds_prueba <- preds_prueba |> 
-  mutate(clase_pred_g = ifelse(preds_prueba$.pred_Yes > 0.5, "pred_Yes", "pred_No")) 
+  mutate(clase_pred_g = ifelse(
+    preds_prueba$.pred_Yes > 0.5, "pred_Yes", "pred_No")) 
 # calcular matriz de confusión
 confusion <- preds_prueba |> 
   group_by(type, clase_pred_g) |> 
@@ -297,9 +306,12 @@ confusion[c("pred_Yes", "pred_No"), ]
 Finalmente podemos calcular:
 
 ```{r}
-sensibilidad_1 <- confusion["pred_Yes", "Yes"] / sum(confusion[, "Yes"])
-precision_1 <- confusion["pred_Yes", "Yes"] / sum(confusion["pred_Yes", ])
-sprintf("Precisión: %.2f, Sensibilidad (recall): %.2f", precision_1, sensibilidad_1)
+sensibilidad_1 <- confusion["pred_Yes", "Yes"] / 
+  sum(confusion[, "Yes"])
+precision_1 <- confusion["pred_Yes", "Yes"] / 
+  sum(confusion["pred_Yes", ])
+sprintf("Precisión: %.2f, Sensibilidad (recall): %.2f", 
+        precision_1, sensibilidad_1)
 ```
 
 
@@ -308,7 +320,8 @@ O también podemos hacer:
 ```{r}
 preds_prueba <- preds_prueba |> 
   mutate(clase_pred = ifelse(.pred_Yes > 0.5, "Yes", "No")) |> 
-  mutate(clase_pred = factor(clase_pred, levels = c("Yes", "No")))
+  mutate(clase_pred = factor(clase_pred, 
+    levels = c("Yes", "No")))
 ## calcular con yardstick
 metricas_1 <- metric_set(accuracy, precision, recall)
 preds_prueba |> 
@@ -339,7 +352,8 @@ Por ejemplo, si en el caso de diabetes incrementamos el punto de corte a 0.7:
 ```{r}
 preds_prueba <- preds_prueba |> 
   mutate(clase_pred = ifelse(.pred_Yes > 0.7, "Yes", "No")) |> 
-  mutate(clase_pred = factor(clase_pred, levels = c("Yes", "No")))
+  mutate(clase_pred = factor(clase_pred, 
+    levels = c("Yes", "No")))
 ## calcular con yardstick
 metricas <- metric_set(accuracy, precision, recall)
 preds_prueba |> 
@@ -428,13 +442,16 @@ En lugar de examinar cada punto de corte por separado, podemos hacer el análisi
 #### Ejemplo {-}
 
 ```{r}
-roc_tbl <- roc_curve(preds_prueba, truth = type, estimate = .pred_Yes)
+roc_tbl <- roc_curve(preds_prueba, 
+  truth = type, estimate = .pred_Yes)
 roc_tbl
-ggplot(roc_tbl, aes(x = 1 - specificity, y = sensitivity)) +
+ggplot(roc_tbl, 
+  aes(x = 1 - specificity, y = sensitivity)) +
   geom_path(aes(colour = .threshold), size = 1.2) +
   geom_abline(colour = "gray") + 
   coord_equal() +
-  xlab("Tasa de falsos positivos") + ylab("Sensibilidad")
+  xlab("Tasa de falsos positivos") + 
+  ylab("Sensibilidad")
 ```
 
 En esta gráfica podemos ver todos los clasificadores posibles basados
@@ -464,14 +481,17 @@ de diabetes que incluyen todas las variables:
 mod_2 <- logistic_reg() |> 
   set_engine("keras") |> 
   set_mode("classification") |>
-  set_args(epochs = 250, optimizer = optimizer_sgd(lr = 0.3),
+  set_args(epochs = 250, 
+           optimizer = optimizer_sgd(lr = 0.3),
            batch_size = nrow(diabetes_ent), 
            verbose = FALSE) |> 
   fit(type ~ ., juice(receta_diabetes))
-preds_prueba_completo <- predict(mod_2, prueba_baked, type ='prob') |> 
+preds_prueba_completo <- predict(
+  mod_2, prueba_baked, type ='prob') |> 
   bind_cols(prueba_baked)
-preds_prueba_2 <- bind_rows(preds_prueba |> mutate(modelo = "IMC y edad"),
-                            preds_prueba_completo |> mutate(modelo = "Todas")) |> 
+preds_prueba_2 <- bind_rows(
+    preds_prueba |> mutate(modelo = "IMC y edad"),
+    preds_prueba_completo |> mutate(modelo = "Todas")) |> 
   group_by(modelo)
 ```
 
@@ -486,7 +506,8 @@ ggplot(roc_2_tbl, aes(x = 1 - specificity, y = sensitivity)) +
   geom_path(aes(colour = modelo), size = 1.2) +
   geom_abline(colour = "gray") + 
   coord_equal() +
-  xlab("Tasa de falsos positivos") + ylab("Sensibilidad")
+  xlab("Tasa de falsos positivos") + 
+  ylab("Sensibilidad")
 
 ```
 
@@ -513,7 +534,8 @@ ggplot(pr_auc_tbl |> filter(modelo != "Todas"),
   geom_path(aes(colour = .threshold), size = 1.2) +
   geom_abline(colour = "gray") + 
   coord_equal() +
-  xlab("Exhaustividad (Sensibilidad)") + ylab("Precisión")
+  xlab("Exhaustividad (Sensibilidad)") + 
+  ylab("Precisión")
 ```
 
 Nota que hay algunas oscilaciones en la curva. Cuando el punto de corte sube,
@@ -530,7 +552,8 @@ Ahora probamos usando todas las variables  y comparamos
 ggplot(pr_auc_tbl , 
        aes(x = recall , y = precision)) +
   geom_path(aes(colour = modelo), size = 1.2) +
-  xlab("Exhaustividad (Sensibilidad)") + ylab("Precisión")
+  xlab("Exhaustividad (Sensibilidad)") + 
+  ylab("Precisión")
 ```
 
 
@@ -560,11 +583,12 @@ positivos esperamos encontrar:
 ```{r}
 gain_tbl <- gain_curve(preds_prueba_2, type, .pred_Yes)
 ggplot(gain_tbl, 
-       aes(x = .percent_tested , y = .percent_found)) +
+  aes(x = .percent_tested , y = .percent_found)) +
   geom_path(aes(colour = modelo), size = 1.2) +
   geom_abline(colour = "gray") + 
   coord_equal() +
-  xlab("% Clasificado positivo") + ylab("Sensibilidad")
+  xlab("% Clasificado positivo") + 
+  ylab("Sensibilidad")
 ```
 
 Y un análogo para las curvas de precisión-recall es la curva del lift. En el

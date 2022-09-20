@@ -138,13 +138,13 @@ usar estas probabilidades para tomar decisiones o incluir en ejercicios de simul
 
 **Observación**: 
 1. Si las probabilidades no están calibradas, y las queremos
-utilizar como tales (con simplemente como *scores*), entonces puede ser
+utilizar como tales (no simplemente como *scores*), entonces puede ser
 necesario hacer un paso adicional de calibración, con una muestra
 separada de calibración (ver por ejemplo @kuhn, sección 11.1).
 2. En este ejemplo construimos intervalos para las proporciones observadas
 usando intervalos bayesianos. Es posible usar intervalos normales o t (usando el
 error estándar), pero estos intervalos tienen cobertura mala para proporciones
-muy chicas o muy grandes (https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval). Nuestro ejemplo es similar a los intervalos de Agresti-Coull.
+muy chicas o muy grandes [Binomial proportion wikipedia](https://en.wikipedia.org/wiki/Binomial_proportion_confidence_interval). Nuestro ejemplo es similar a los intervalos de Agresti-Coull.
 
 
 ## Ejemplo: artículos de ropa
