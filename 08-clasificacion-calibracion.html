@@ -107,7 +107,7 @@ div.csl-indent {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./08-clasificacion-2.html" rel="next">
+<link href="./09-clasificacion-2.html" rel="next">
 <link href="./07-clasificacion-1.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -218,7 +218,12 @@ div.csl-indent {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./08-clasificacion-2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Más sobre problemas de clasificación</span></a>
+  <a href="./09-clasificacion-2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Más sobre problemas de clasificación</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-val-cruzada.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Entrenamiento, Validación y Prueba</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -292,12 +297,12 @@ div.csl-indent {
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>dat_calibracion <span class="sc">|&gt;</span> <span class="fu">head</span>() <span class="sc">|&gt;</span> <span class="fu">gt</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="wpgmrwjbhw" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="lqkmcvnpld" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#wpgmrwjbhw .gt_table {
+#lqkmcvnpld .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -322,7 +327,7 @@ div.csl-indent {
   border-left-color: #D3D3D3;
 }
 
-#wpgmrwjbhw .gt_heading {
+#lqkmcvnpld .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -334,7 +339,7 @@ div.csl-indent {
   border-right-color: #D3D3D3;
 }
 
-#wpgmrwjbhw .gt_title {
+#lqkmcvnpld .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -346,7 +351,7 @@ div.csl-indent {
   border-bottom-width: 0;
 }
 
-#wpgmrwjbhw .gt_subtitle {
+#lqkmcvnpld .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -358,13 +363,13 @@ div.csl-indent {
   border-top-width: 0;
 }
 
-#wpgmrwjbhw .gt_bottom_border {
+#lqkmcvnpld .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#wpgmrwjbhw .gt_col_headings {
+#lqkmcvnpld .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -379,7 +384,7 @@ div.csl-indent {
   border-right-color: #D3D3D3;
 }
 
-#wpgmrwjbhw .gt_col_heading {
+#lqkmcvnpld .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -399,7 +404,7 @@ div.csl-indent {
   overflow-x: hidden;
 }
 
-#wpgmrwjbhw .gt_column_spanner_outer {
+#lqkmcvnpld .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -411,15 +416,15 @@ div.csl-indent {
   padding-right: 4px;
 }
 
-#wpgmrwjbhw .gt_column_spanner_outer:first-child {
+#lqkmcvnpld .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#wpgmrwjbhw .gt_column_spanner_outer:last-child {
+#lqkmcvnpld .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#wpgmrwjbhw .gt_column_spanner {
+#lqkmcvnpld .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -431,7 +436,7 @@ div.csl-indent {
   width: 100%;
 }
 
-#wpgmrwjbhw .gt_group_heading {
+#lqkmcvnpld .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -456,7 +461,7 @@ div.csl-indent {
   vertical-align: middle;
 }
 
-#wpgmrwjbhw .gt_empty_group_heading {
+#lqkmcvnpld .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -471,15 +476,15 @@ div.csl-indent {
   vertical-align: middle;
 }
 
-#wpgmrwjbhw .gt_from_md > :first-child {
+#lqkmcvnpld .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#wpgmrwjbhw .gt_from_md > :last-child {
+#lqkmcvnpld .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#wpgmrwjbhw .gt_row {
+#lqkmcvnpld .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -498,7 +503,7 @@ div.csl-indent {
   overflow-x: hidden;
 }
 
-#wpgmrwjbhw .gt_stub {
+#lqkmcvnpld .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -511,7 +516,7 @@ div.csl-indent {
   padding-right: 5px;
 }
 
-#wpgmrwjbhw .gt_stub_row_group {
+#lqkmcvnpld .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -525,11 +530,11 @@ div.csl-indent {
   vertical-align: top;
 }
 
-#wpgmrwjbhw .gt_row_group_first td {
+#lqkmcvnpld .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#wpgmrwjbhw .gt_summary_row {
+#lqkmcvnpld .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -539,16 +544,16 @@ div.csl-indent {
   padding-right: 5px;
 }
 
-#wpgmrwjbhw .gt_first_summary_row {
+#lqkmcvnpld .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#wpgmrwjbhw .gt_first_summary_row.thick {
+#lqkmcvnpld .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#wpgmrwjbhw .gt_last_summary_row {
+#lqkmcvnpld .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -558,7 +563,7 @@ div.csl-indent {
   border-bottom-color: #D3D3D3;
 }
 
-#wpgmrwjbhw .gt_grand_summary_row {
+#lqkmcvnpld .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -568,7 +573,7 @@ div.csl-indent {
   padding-right: 5px;
 }
 
-#wpgmrwjbhw .gt_first_grand_summary_row {
+#lqkmcvnpld .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -578,11 +583,11 @@ div.csl-indent {
   border-top-color: #D3D3D3;
 }
 
-#wpgmrwjbhw .gt_striped {
+#lqkmcvnpld .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#wpgmrwjbhw .gt_table_body {
+#lqkmcvnpld .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -591,7 +596,7 @@ div.csl-indent {
   border-bottom-color: #D3D3D3;
 }
 
-#wpgmrwjbhw .gt_footnotes {
+#lqkmcvnpld .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -605,7 +610,7 @@ div.csl-indent {
   border-right-color: #D3D3D3;
 }
 
-#wpgmrwjbhw .gt_footnote {
+#lqkmcvnpld .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -614,7 +619,7 @@ div.csl-indent {
   padding-right: 5px;
 }
 
-#wpgmrwjbhw .gt_sourcenotes {
+#lqkmcvnpld .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -628,7 +633,7 @@ div.csl-indent {
   border-right-color: #D3D3D3;
 }
 
-#wpgmrwjbhw .gt_sourcenote {
+#lqkmcvnpld .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -636,36 +641,36 @@ div.csl-indent {
   padding-right: 5px;
 }
 
-#wpgmrwjbhw .gt_left {
+#lqkmcvnpld .gt_left {
   text-align: left;
 }
 
-#wpgmrwjbhw .gt_center {
+#lqkmcvnpld .gt_center {
   text-align: center;
 }
 
-#wpgmrwjbhw .gt_right {
+#lqkmcvnpld .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#wpgmrwjbhw .gt_font_normal {
+#lqkmcvnpld .gt_font_normal {
   font-weight: normal;
 }
 
-#wpgmrwjbhw .gt_font_bold {
+#lqkmcvnpld .gt_font_bold {
   font-weight: bold;
 }
 
-#wpgmrwjbhw .gt_font_italic {
+#lqkmcvnpld .gt_font_italic {
   font-style: italic;
 }
 
-#wpgmrwjbhw .gt_super {
+#lqkmcvnpld .gt_super {
   font-size: 65%;
 }
 
-#wpgmrwjbhw .gt_two_val_uncert {
+#lqkmcvnpld .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -674,31 +679,31 @@ div.csl-indent {
   margin-left: 0.1em;
 }
 
-#wpgmrwjbhw .gt_footnote_marks {
+#lqkmcvnpld .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#wpgmrwjbhw .gt_asterisk {
+#lqkmcvnpld .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#wpgmrwjbhw .gt_slash_mark {
+#lqkmcvnpld .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#wpgmrwjbhw .gt_fraction_numerator {
+#lqkmcvnpld .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#wpgmrwjbhw .gt_fraction_denominator {
+#lqkmcvnpld .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
@@ -789,12 +794,12 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>calibracion_gpos <span class="sc">|&gt;</span> <span class="fu">gt</span>() <span class="sc">|&gt;</span> <span class="fu">fmt_number</span>(<span class="fu">where</span>(is_double), <span class="at">decimals =</span> <span class="dv">3</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="glsytaolzd" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="cjsahjmdxm" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#glsytaolzd .gt_table {
+#cjsahjmdxm .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -819,7 +824,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-left-color: #D3D3D3;
 }
 
-#glsytaolzd .gt_heading {
+#cjsahjmdxm .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -831,7 +836,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-right-color: #D3D3D3;
 }
 
-#glsytaolzd .gt_title {
+#cjsahjmdxm .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -843,7 +848,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-bottom-width: 0;
 }
 
-#glsytaolzd .gt_subtitle {
+#cjsahjmdxm .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -855,13 +860,13 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-top-width: 0;
 }
 
-#glsytaolzd .gt_bottom_border {
+#cjsahjmdxm .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#glsytaolzd .gt_col_headings {
+#cjsahjmdxm .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -876,7 +881,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-right-color: #D3D3D3;
 }
 
-#glsytaolzd .gt_col_heading {
+#cjsahjmdxm .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -896,7 +901,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   overflow-x: hidden;
 }
 
-#glsytaolzd .gt_column_spanner_outer {
+#cjsahjmdxm .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -908,15 +913,15 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 4px;
 }
 
-#glsytaolzd .gt_column_spanner_outer:first-child {
+#cjsahjmdxm .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#glsytaolzd .gt_column_spanner_outer:last-child {
+#cjsahjmdxm .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#glsytaolzd .gt_column_spanner {
+#cjsahjmdxm .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -928,7 +933,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   width: 100%;
 }
 
-#glsytaolzd .gt_group_heading {
+#cjsahjmdxm .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -953,7 +958,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   vertical-align: middle;
 }
 
-#glsytaolzd .gt_empty_group_heading {
+#cjsahjmdxm .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -968,15 +973,15 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   vertical-align: middle;
 }
 
-#glsytaolzd .gt_from_md > :first-child {
+#cjsahjmdxm .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#glsytaolzd .gt_from_md > :last-child {
+#cjsahjmdxm .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#glsytaolzd .gt_row {
+#cjsahjmdxm .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -995,7 +1000,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   overflow-x: hidden;
 }
 
-#glsytaolzd .gt_stub {
+#cjsahjmdxm .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1008,7 +1013,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 5px;
 }
 
-#glsytaolzd .gt_stub_row_group {
+#cjsahjmdxm .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1022,11 +1027,11 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   vertical-align: top;
 }
 
-#glsytaolzd .gt_row_group_first td {
+#cjsahjmdxm .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#glsytaolzd .gt_summary_row {
+#cjsahjmdxm .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1036,16 +1041,16 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 5px;
 }
 
-#glsytaolzd .gt_first_summary_row {
+#cjsahjmdxm .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#glsytaolzd .gt_first_summary_row.thick {
+#cjsahjmdxm .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#glsytaolzd .gt_last_summary_row {
+#cjsahjmdxm .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1055,7 +1060,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-bottom-color: #D3D3D3;
 }
 
-#glsytaolzd .gt_grand_summary_row {
+#cjsahjmdxm .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1065,7 +1070,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 5px;
 }
 
-#glsytaolzd .gt_first_grand_summary_row {
+#cjsahjmdxm .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1075,11 +1080,11 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-top-color: #D3D3D3;
 }
 
-#glsytaolzd .gt_striped {
+#cjsahjmdxm .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#glsytaolzd .gt_table_body {
+#cjsahjmdxm .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1088,7 +1093,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-bottom-color: #D3D3D3;
 }
 
-#glsytaolzd .gt_footnotes {
+#cjsahjmdxm .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1102,7 +1107,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-right-color: #D3D3D3;
 }
 
-#glsytaolzd .gt_footnote {
+#cjsahjmdxm .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1111,7 +1116,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 5px;
 }
 
-#glsytaolzd .gt_sourcenotes {
+#cjsahjmdxm .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1125,7 +1130,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-right-color: #D3D3D3;
 }
 
-#glsytaolzd .gt_sourcenote {
+#cjsahjmdxm .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1133,36 +1138,36 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 5px;
 }
 
-#glsytaolzd .gt_left {
+#cjsahjmdxm .gt_left {
   text-align: left;
 }
 
-#glsytaolzd .gt_center {
+#cjsahjmdxm .gt_center {
   text-align: center;
 }
 
-#glsytaolzd .gt_right {
+#cjsahjmdxm .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#glsytaolzd .gt_font_normal {
+#cjsahjmdxm .gt_font_normal {
   font-weight: normal;
 }
 
-#glsytaolzd .gt_font_bold {
+#cjsahjmdxm .gt_font_bold {
   font-weight: bold;
 }
 
-#glsytaolzd .gt_font_italic {
+#cjsahjmdxm .gt_font_italic {
   font-style: italic;
 }
 
-#glsytaolzd .gt_super {
+#cjsahjmdxm .gt_super {
   font-size: 65%;
 }
 
-#glsytaolzd .gt_two_val_uncert {
+#cjsahjmdxm .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -1171,31 +1176,31 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   margin-left: 0.1em;
 }
 
-#glsytaolzd .gt_footnote_marks {
+#cjsahjmdxm .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#glsytaolzd .gt_asterisk {
+#cjsahjmdxm .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#glsytaolzd .gt_slash_mark {
+#cjsahjmdxm .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#glsytaolzd .gt_fraction_numerator {
+#cjsahjmdxm .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#glsytaolzd .gt_fraction_denominator {
+#cjsahjmdxm .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
@@ -1334,12 +1339,12 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>preds_tbl <span class="sc">|&gt;</span> <span class="fu">head</span>() <span class="sc">|&gt;</span> <span class="fu">gt</span>() <span class="sc">|&gt;</span> <span class="fu">fmt_number</span>(<span class="fu">where</span>(is_double), <span class="at">decimals =</span> <span class="dv">3</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
-<div id="avnrmqhqcy" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="psoyjogthv" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#avnrmqhqcy .gt_table {
+#psoyjogthv .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -1364,7 +1369,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-left-color: #D3D3D3;
 }
 
-#avnrmqhqcy .gt_heading {
+#psoyjogthv .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1376,7 +1381,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-right-color: #D3D3D3;
 }
 
-#avnrmqhqcy .gt_title {
+#psoyjogthv .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1388,7 +1393,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-bottom-width: 0;
 }
 
-#avnrmqhqcy .gt_subtitle {
+#psoyjogthv .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1400,13 +1405,13 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-top-width: 0;
 }
 
-#avnrmqhqcy .gt_bottom_border {
+#psoyjogthv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#avnrmqhqcy .gt_col_headings {
+#psoyjogthv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1421,7 +1426,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-right-color: #D3D3D3;
 }
 
-#avnrmqhqcy .gt_col_heading {
+#psoyjogthv .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1441,7 +1446,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   overflow-x: hidden;
 }
 
-#avnrmqhqcy .gt_column_spanner_outer {
+#psoyjogthv .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1453,15 +1458,15 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 4px;
 }
 
-#avnrmqhqcy .gt_column_spanner_outer:first-child {
+#psoyjogthv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#avnrmqhqcy .gt_column_spanner_outer:last-child {
+#psoyjogthv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#avnrmqhqcy .gt_column_spanner {
+#psoyjogthv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1473,7 +1478,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   width: 100%;
 }
 
-#avnrmqhqcy .gt_group_heading {
+#psoyjogthv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1498,7 +1503,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   vertical-align: middle;
 }
 
-#avnrmqhqcy .gt_empty_group_heading {
+#psoyjogthv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1513,15 +1518,15 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   vertical-align: middle;
 }
 
-#avnrmqhqcy .gt_from_md > :first-child {
+#psoyjogthv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#avnrmqhqcy .gt_from_md > :last-child {
+#psoyjogthv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#avnrmqhqcy .gt_row {
+#psoyjogthv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1540,7 +1545,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   overflow-x: hidden;
 }
 
-#avnrmqhqcy .gt_stub {
+#psoyjogthv .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1553,7 +1558,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 5px;
 }
 
-#avnrmqhqcy .gt_stub_row_group {
+#psoyjogthv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1567,11 +1572,11 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   vertical-align: top;
 }
 
-#avnrmqhqcy .gt_row_group_first td {
+#psoyjogthv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#avnrmqhqcy .gt_summary_row {
+#psoyjogthv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1581,16 +1586,16 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 5px;
 }
 
-#avnrmqhqcy .gt_first_summary_row {
+#psoyjogthv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#avnrmqhqcy .gt_first_summary_row.thick {
+#psoyjogthv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#avnrmqhqcy .gt_last_summary_row {
+#psoyjogthv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1600,7 +1605,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-bottom-color: #D3D3D3;
 }
 
-#avnrmqhqcy .gt_grand_summary_row {
+#psoyjogthv .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1610,7 +1615,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 5px;
 }
 
-#avnrmqhqcy .gt_first_grand_summary_row {
+#psoyjogthv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1620,11 +1625,11 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-top-color: #D3D3D3;
 }
 
-#avnrmqhqcy .gt_striped {
+#psoyjogthv .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#avnrmqhqcy .gt_table_body {
+#psoyjogthv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1633,7 +1638,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-bottom-color: #D3D3D3;
 }
 
-#avnrmqhqcy .gt_footnotes {
+#psoyjogthv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1647,7 +1652,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-right-color: #D3D3D3;
 }
 
-#avnrmqhqcy .gt_footnote {
+#psoyjogthv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-left: 4px;
@@ -1656,7 +1661,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 5px;
 }
 
-#avnrmqhqcy .gt_sourcenotes {
+#psoyjogthv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1670,7 +1675,7 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   border-right-color: #D3D3D3;
 }
 
-#avnrmqhqcy .gt_sourcenote {
+#psoyjogthv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1678,36 +1683,36 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   padding-right: 5px;
 }
 
-#avnrmqhqcy .gt_left {
+#psoyjogthv .gt_left {
   text-align: left;
 }
 
-#avnrmqhqcy .gt_center {
+#psoyjogthv .gt_center {
   text-align: center;
 }
 
-#avnrmqhqcy .gt_right {
+#psoyjogthv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#avnrmqhqcy .gt_font_normal {
+#psoyjogthv .gt_font_normal {
   font-weight: normal;
 }
 
-#avnrmqhqcy .gt_font_bold {
+#psoyjogthv .gt_font_bold {
   font-weight: bold;
 }
 
-#avnrmqhqcy .gt_font_italic {
+#psoyjogthv .gt_font_italic {
   font-style: italic;
 }
 
-#avnrmqhqcy .gt_super {
+#psoyjogthv .gt_super {
   font-size: 65%;
 }
 
-#avnrmqhqcy .gt_two_val_uncert {
+#psoyjogthv .gt_two_val_uncert {
   display: inline-block;
   line-height: 1em;
   text-align: right;
@@ -1716,31 +1721,31 @@ Si en cada cubeta la probabilidad de clase promedio y el porcentaje de casos de 
   margin-left: 0.1em;
 }
 
-#avnrmqhqcy .gt_footnote_marks {
+#psoyjogthv .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 75%;
   vertical-align: 0.4em;
 }
 
-#avnrmqhqcy .gt_asterisk {
+#psoyjogthv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#avnrmqhqcy .gt_slash_mark {
+#psoyjogthv .gt_slash_mark {
   font-size: 0.7em;
   line-height: 0.7em;
   vertical-align: 0.15em;
 }
 
-#avnrmqhqcy .gt_fraction_numerator {
+#psoyjogthv .gt_fraction_numerator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: 0.45em;
 }
 
-#avnrmqhqcy .gt_fraction_denominator {
+#psoyjogthv .gt_fraction_denominator {
   font-size: 0.6em;
   line-height: 0.6em;
   vertical-align: -0.05em;
@@ -2097,7 +2102,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./08-clasificacion-2.html" class="pagination-link">
+      <a href="./09-clasificacion-2.html" class="pagination-link">
         <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Más sobre problemas de clasificación</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
