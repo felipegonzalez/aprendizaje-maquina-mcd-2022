@@ -14,7 +14,8 @@ book:
     - 06-intervalos-predictivos.qmd
     - 07-clasificacion-1.qmd
     - 08-clasificacion-calibracion.qmd
-    - 08-clasificacion-2.qmd
+    - 09-clasificacion-2.qmd
+    - 10-val-cruzada.qmd
     - 99-referencias.qmd
 bibliography: referencias/book.bib
 
