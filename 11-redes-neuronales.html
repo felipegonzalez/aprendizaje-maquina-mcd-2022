@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Aprendizaje Máquina - 11&nbsp; Redes neuronales</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./99-referencias.html" rel="next">
+<link href="./10-val-cruzada.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "Sín resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la busqueda",
+    "search-hide-matches-text": "Esconder resultados adicionales",
+    "search-more-match-text": "hay más resultados en este documento",
+    "search-more-matches-text": "más resultados en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Eviar"
+  }
+}</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Redes neuronales</span></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Aprendizaje Máquina</a> 
+    </div>
+      </div>
+      <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">Temario y referencias</a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-introduccion.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introducción</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-principios-supervisado.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Principios de aprendizaje supervisado</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-metodos-locales.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Métodos locales no estructurados</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-lineales-ingenieria.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Métodos lineales e ingenería de entradas</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-regularizacion-1.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regularización y variabilidad</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-intervalos-predictivos.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Incertidumbre en las predicciones</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-clasificacion-1.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Clasificación</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-clasificacion-calibracion.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Incertidumbre en clasificación</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-clasificacion-2.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Más sobre problemas de clasificación</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-val-cruzada.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Entrenamiento, Validación y Prueba</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-redes-neuronales.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Redes neuronales</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./99-referencias.html" class="sidebar-item-text sidebar-link">Referencias</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Appendices</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./81-apendice-descenso.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">A</span>&nbsp; <span class="chapter-title">Apéndice 1: descenso en gradiente</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./82-apendice-descenso-estocastico.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">B</span>&nbsp; <span class="chapter-title">Apéndice 2: Descenso estocástico</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">Indice de contenidos</h2>
+   
+  <ul>
+  <li><a href="#introducción-a-redes-neuronales" id="toc-introducción-a-redes-neuronales" class="nav-link active" data-scroll-target="#introducción-a-redes-neuronales"> <span class="header-section-number">11.1</span> Introducción a redes neuronales</a>
+  <ul class="collapse">
+  <li><a href="#cómo-construyen-entradas-las-redes-neuronales" id="toc-cómo-construyen-entradas-las-redes-neuronales" class="nav-link" data-scroll-target="#cómo-construyen-entradas-las-redes-neuronales">¿Cómo construyen entradas las redes neuronales?</a></li>
+  <li><a href="#cómo-ajustar-los-parámetros" id="toc-cómo-ajustar-los-parámetros" class="nav-link" data-scroll-target="#cómo-ajustar-los-parámetros">¿Cómo ajustar los parámetros?</a></li>
+  </ul></li>
+  <li><a href="#interacciones-en-redes-neuronales" id="toc-interacciones-en-redes-neuronales" class="nav-link" data-scroll-target="#interacciones-en-redes-neuronales"> <span class="header-section-number">11.2</span> Interacciones en redes neuronales</a></li>
+  <li><a href="#cálculo-en-redes-feed-forward" id="toc-cálculo-en-redes-feed-forward" class="nav-link" data-scroll-target="#cálculo-en-redes-feed-forward"> <span class="header-section-number">11.3</span> Cálculo en redes: feed-forward</a></li>
+  <li><a href="#notación" id="toc-notación" class="nav-link" data-scroll-target="#notación"> <span class="header-section-number">11.4</span> Notación</a></li>
+  <li><a href="#algoritmo-de-feed-forward" id="toc-algoritmo-de-feed-forward" class="nav-link" data-scroll-target="#algoritmo-de-feed-forward"> <span class="header-section-number">11.5</span> Algoritmo de Feed forward</a></li>
+  <li><a href="#algoritmo-de-backpropagation-cálculo-del-gradiente-clasificación-binaria" id="toc-algoritmo-de-backpropagation-cálculo-del-gradiente-clasificación-binaria" class="nav-link" data-scroll-target="#algoritmo-de-backpropagation-cálculo-del-gradiente-clasificación-binaria"> <span class="header-section-number">11.6</span> Algoritmo de Backpropagation: cálculo del gradiente (clasificación binaria)</a>
+  <ul class="collapse">
+  <li><a href="#cálculo-para-un-caso-de-entrenamiento" id="toc-cálculo-para-un-caso-de-entrenamiento" class="nav-link" data-scroll-target="#cálculo-para-un-caso-de-entrenamiento">Cálculo para un caso de entrenamiento</a></li>
+  <li><a href="#algoritmo-de-backpropagation" id="toc-algoritmo-de-backpropagation" class="nav-link" data-scroll-target="#algoritmo-de-backpropagation">Algoritmo de backpropagation</a></li>
+  </ul></li>
+  <li><a href="#ajuste-de-parámetros-introducción" id="toc-ajuste-de-parámetros-introducción" class="nav-link" data-scroll-target="#ajuste-de-parámetros-introducción"> <span class="header-section-number">11.7</span> Ajuste de parámetros (introducción)</a>
+  <ul class="collapse">
+  <li><a href="#ejemplo-2" id="toc-ejemplo-2" class="nav-link" data-scroll-target="#ejemplo-2">Ejemplo</a></li>
+  <li><a href="#ejemplo-3" id="toc-ejemplo-3" class="nav-link" data-scroll-target="#ejemplo-3">Ejemplo</a></li>
+  </ul></li>
+  <li><a href="#activaciones-relu" id="toc-activaciones-relu" class="nav-link" data-scroll-target="#activaciones-relu"> <span class="header-section-number">11.8</span> Activaciones relu</a></li>
+  <li><a href="#dropout-para-regularización" id="toc-dropout-para-regularización" class="nav-link" data-scroll-target="#dropout-para-regularización"> <span class="header-section-number">11.9</span> Dropout para regularización</a>
+  <ul class="collapse">
+  <li><a href="#ejemplo-5" id="toc-ejemplo-5" class="nav-link" data-scroll-target="#ejemplo-5">Ejemplo</a></li>
+  </ul></li>
+  <li><a href="#datos-aumentados" id="toc-datos-aumentados" class="nav-link" data-scroll-target="#datos-aumentados"> <span class="header-section-number">11.10</span> Datos aumentados</a></li>
+  <li><a href="#ajuste-de-hiperparámetros" id="toc-ajuste-de-hiperparámetros" class="nav-link" data-scroll-target="#ajuste-de-hiperparámetros"> <span class="header-section-number">11.11</span> Ajuste de hiperparámetros</a>
+  <ul class="collapse">
+  <li><a href="#ajuste-manual-de-hiperparámetros" id="toc-ajuste-manual-de-hiperparámetros" class="nav-link" data-scroll-target="#ajuste-manual-de-hiperparámetros">Ajuste Manual de Hiperparámetros</a></li>
+  <li><a href="#ajuste-automático" id="toc-ajuste-automático" class="nav-link" data-scroll-target="#ajuste-automático">Ajuste automático</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title d-none d-lg-block"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Redes neuronales</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<section id="introducción-a-redes-neuronales" class="level2" data-number="11.1">
+<h2 data-number="11.1" class="anchored" data-anchor-id="introducción-a-redes-neuronales"><span class="header-section-number">11.1</span> Introducción a redes neuronales</h2>
+<p>En partes anteriores, vimos cómo hacer más flexibles los métodos de regresión: la idea es construir entradas derivadas a partir de las variables originales, e incluirlas en el modelo de regresión. Este enfoque es bueno cuando tenemos relativamente pocas variables originales de entrada, y tenemos una idea de qué variables derivadas es buena idea incluir (por ejemplo, splines para una variable como edad, interacciones para variables importantes, etc). Sin embargo, si hay una gran cantidad de entradas, esta técnica puede ser prohibitiva en términos de cálculo y trabajo manual.</p>
+<p>Por ejemplo, si tenemos unas 100 entradas numéricas, al crear todas las interacciones <span class="math inline">\(x_i x_j\)</span> y los cuadrados <span class="math inline">\(x_i^2\)</span> terminamos con unas 5150 variables. Para el problema de dígitos (256 entradas o pixeles) terminaríamos con unas 32 mil entradas adicionales. Aún cuando es posible regularizar, en estos casos suena más conveniente construir entradas derivadas a partir de los datos.</p>
+<p>Para hacer esto, consideramos entradas <span class="math inline">\(X_1, . . . , X_p\)</span>, y supongamos que tenemos un problema de clasificación binaria, con <span class="math inline">\(G = 1\)</span> o <span class="math inline">\(G = 0\)</span>. Aunque hay muchas maneras de construir entradas derivadas, una manera simple sería construir <span class="math inline">\(m\)</span> nuevas entradas mediante:</p>
+<p><span class="math display">\[a_k = h \left ( \theta_{k,0} + \sum_{j=1}^p \theta_{k,j}x_j
+\right)\]</span></p>
+<p>para <span class="math inline">\(k=1,\ldots, m\)</span>, donde <span class="math inline">\(h\)</span> es la función logística, y las <span class="math inline">\(\theta\)</span> son parámetros que seleccionaremos más tarde. La idea es hacer <strong>combinaciones lineales</strong> de variables <strong>transformadas</strong>.</p>
+<p>Modelamos ahora la probabilidad de clase 1 con regresión logística, pero en lugar de usar las entradas originales X usamos las entradas derivadas <span class="math inline">\(a_1, . . . , a_m\)</span>: $$p_1(x) = h ( <em>0 + </em>{j=1}^m _ja_j</p>
+<p>)$$</p>
+<p>Podemos representar este esquema con una red dirigida (<span class="math inline">\(m=3\)</span> variables derivadas):</p>
+<div class="cell">
+
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="400"></p>
+</div>
+</div>
+<p><strong>Observaciones:</strong></p>
+<ul>
+<li>¿Por qué usar <span class="math inline">\(h\)</span> para las entradas derivadas <span class="math inline">\(a_k\)</span>? En primer lugar, nótese que si no transformamos con alguna función no lineal <span class="math inline">\(h\)</span>, el modelo final <span class="math inline">\(p_1\)</span> para la probabilidad condicional es el mismo que el de regresión logística (combinaciones lineales de combinaciones lineales son combinaciones lineales). Sin embargo, al transformar con <span class="math inline">\(h\)</span>, las <span class="math inline">\(x_j\)</span> contribuyen de manera no lineal a las entradas derivadas.</li>
+<li>Las variables <span class="math inline">\(a_k\)</span> que se pueden obtener son similares (para una variable de entrada) a los I-splines que vimos en la parte anterior.</li>
+<li>Es posible demostrar que si se crean suficientes entradas derivadas (<span class="math inline">\(m\)</span> es suficientemente grande), entonces la función <span class="math inline">\(p_1(x)\)</span> puede aproximar cualquier función continua. La función <span class="math inline">\(h\)</span> (que se llama <strong>función de activación</strong> no es especial: funciones continuas con forma similar a la sigmoide (logística) pueden usarse también (por ejemplo, arcotangente, o lineal rectificada). La idea es que cualquier función se puede aproximar mediante superposición de funciones tipo sigmoide (ver por ejemplo Cybenko 1989, Approximation by Superpositions of a Sigmoidal Function).</li>
+</ul>
+<section id="cómo-construyen-entradas-las-redes-neuronales" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="cómo-construyen-entradas-las-redes-neuronales">¿Cómo construyen entradas las redes neuronales?</h3>
+<p>Comencemos por un ejemplo simple de clasificación binaria con una sola entrada <span class="math inline">\(x\)</span>. Supondremos que el modelo verdadero está dado por:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span><span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>x)) <span class="co"># es lo mismo que exp(x)/(1 + exp(x))</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="fl">0.1</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">h</span>(<span class="dv">2</span> <span class="sc">-</span> <span class="dv">3</span> <span class="sc">*</span> x<span class="sc">^</span><span class="dv">2</span>) <span class="co">#probabilidad condicional de clase 1 (vs. 0)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2805721</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>x_1 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">30</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>g_1 <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">30</span>, <span class="dv">1</span>, <span class="fu">h</span>(<span class="dv">2</span> <span class="sc">-</span> <span class="dv">3</span> <span class="sc">*</span> x_1<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(x_1, g_1)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>dat_p <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(x, p)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">qplot</span>(x, p, <span class="at">geom=</span><span class="st">'line'</span>, <span class="at">colour=</span><span class="st">"red"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">data =</span> datos, <span class="fu">aes</span>(<span class="at">x =</span> x_1, <span class="at">y =</span> g_1), <span class="at">colour =</span> <span class="st">'red'</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>donde adicionalmente graficamos 30 datos simulados. Recordamos que queremos ajustar la curva roja, que da la probabilidad condicional de clase. Podríamos ajustar un modelo de regresión logística expandiendo manualmente el espacio de entradas agregando <span class="math inline">\(x^2\)</span>, y obtendríamos un ajuste razonable. Pero la idea aquí es que podemos crear entradas derivadas de forma automática.</p>
+<p>Supongamos entonces que pensamos crear dos entradas <span class="math inline">\(a_1\)</span> y <span class="math inline">\(a_2\)</span>, funciones de <span class="math inline">\(x_1\)</span>, y luego predecir <span class="math inline">\(g.1\)</span>, la clase, en función de estas dos entradas. Por ejemplo, podríamos tomar:</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="400"></p>
+</div>
+</div>
+<p>donde hacemos una regresión logística para predecir <span class="math inline">\(G\)</span> mediante</p>
+<p><span class="math display">\[p_1(a) = h(\beta_0 + \beta_1a_1+\beta_2 a_2),\]</span></p>
+<p><span class="math inline">\(a_1\)</span> y <span class="math inline">\(a_2\)</span> están dadas por</p>
+<p><span class="math display">\[a_1(x)=h(\beta_{1,0} + \beta_{1,1} x_1),\]</span></p>
+<p><span class="math display">\[a_2(x)=h(\beta_{2,0} + \beta_{2,1} x_1).\]</span></p>
+<p>Por ejemplo, podríamos tomar</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>a_1 <span class="ot">&lt;-</span> <span class="fu">h</span>( <span class="dv">1</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> x)  <span class="co"># 2(x+1/2)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>a_2 <span class="ot">&lt;-</span> <span class="fu">h</span>(<span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> x)  <span class="co"># 2(x-1/2) # una es una versión desplazada de otra.</span></span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Las funciones <span class="math inline">\(a_1\)</span> y <span class="math inline">\(a_2\)</span> dependen de <span class="math inline">\(x\)</span> de la siguiente forma:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dat_a <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> x, <span class="at">a_1 =</span> a_1, <span class="at">a_2 =</span> a_2)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>dat_a_2 <span class="ot">&lt;-</span> dat_a <span class="sc">|&gt;</span> <span class="fu">gather</span>(variable, valor, a_1<span class="sc">:</span>a_2)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat_a_2, <span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>valor, <span class="at">colour=</span>variable, <span class="at">group=</span>variable)) <span class="sc">+</span> <span class="fu">geom_line</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>Si las escalamos y sumamos, obtenemos</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dat_a <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x=</span>x, <span class="at">a_1 =</span> <span class="sc">-</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">12</span> <span class="sc">*</span> a_1, <span class="at">a_2 =</span> <span class="sc">-</span><span class="dv">12</span> <span class="sc">*</span> a_2, <span class="at">suma =</span> <span class="sc">-</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">12</span> <span class="sc">*</span> a_1 <span class="sc">-</span> <span class="dv">12</span> <span class="sc">*</span> a_2)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>dat_a_2 <span class="ot">&lt;-</span> dat_a <span class="sc">|&gt;</span> <span class="fu">gather</span>(variable, valor, a_1<span class="sc">:</span>suma)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat_a_2, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> valor, <span class="at">colour =</span> variable, <span class="at">group =</span> variable)) <span class="sc">+</span> <span class="fu">geom_line</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>y finalmente, aplicando <span class="math inline">\(h\)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dat_2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(x, <span class="at">p2 =</span> <span class="fu">h</span>(<span class="sc">-</span><span class="dv">4</span> <span class="sc">+</span> <span class="dv">12</span> <span class="sc">*</span> a_1 <span class="sc">-</span> <span class="dv">12</span> <span class="sc">*</span> a_2))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat_2, <span class="fu">aes</span>(<span class="at">x=</span>x, <span class="at">y=</span>p2)) <span class="sc">+</span> <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_line</span>(<span class="at">data=</span>dat_p, <span class="fu">aes</span>(<span class="at">x=</span>x,<span class="at">y=</span>p), <span class="at">col=</span><span class="st">'red'</span>) <span class="sc">+</span><span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))<span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">geom_point</span>(<span class="at">data =</span> datos, <span class="fu">aes</span>(<span class="at">x =</span> x_1, <span class="at">y =</span> g_1))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>que da un ajuste razonable. Este es un ejemplo de cómo la mezcla de dos funciones logísticas puede replicar esta función con forma de chipote.</p>
+</section>
+<section id="cómo-ajustar-los-parámetros" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="cómo-ajustar-los-parámetros">¿Cómo ajustar los parámetros?</h3>
+<p>Para encontrar los mejores parámetros, minimizamos la devianza sobre los parámetros <span class="math inline">\(\beta_0,\beta_1,\beta_2\)</span> y <span class="math inline">\(\beta_{1,0},\beta_{1,1},\beta_{2,0},\beta_{2,1}\)</span>.</p>
+<p>Veremos más adelante que conviene hacer esto usando descenso o en gradiente o descenso en gradiente estocástico, pero por el momento usamos la función <em>optim</em> de R para minimizar la devianza. En primer lugar, creamos una función que para todas las entradas calcula los valores de salida. En esta función hacemos <strong>feed-forward</strong> de las entradas a través de la red para calcular la salida.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="do">## esta función calcula los valores de cada nodo en toda la red,</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="do">## para cada entrada</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>feed_fow <span class="ot">&lt;-</span> <span class="cf">function</span>(beta, x){</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  a_1 <span class="ot">&lt;-</span> <span class="fu">h</span>(beta[<span class="dv">1</span>] <span class="sc">+</span> beta[<span class="dv">2</span>] <span class="sc">*</span> x) <span class="co"># calcula variable 1 de capa oculta</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  a_2 <span class="ot">&lt;-</span> <span class="fu">h</span>(beta[<span class="dv">3</span>] <span class="sc">+</span> beta[<span class="dv">4</span>] <span class="sc">*</span> x) <span class="co"># calcula variable 2 de capa oculta</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">h</span>(beta[<span class="dv">5</span>] <span class="sc">+</span> beta[<span class="dv">6</span>] <span class="sc">*</span> a_1 <span class="sc">+</span> beta[<span class="dv">7</span>] <span class="sc">*</span> a_2) <span class="co"># calcula capa de salida</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  p</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Nótese que simplemente seguimos el diagrama mostrado arriba para hacer los cálculos, combinando linealmente las entradas en cada capa.</p>
+<p>Ahora definimos una función para calcular la devianza. Conviene crear una función que crea funciones, para obtener una función que <em>sólo se evalúa en los parámetros</em> para cada conjunto de datos de entrenamiento fijos:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>perdida_log_fun <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y){</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># esta función es una fábrica de funciones</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>   perdida_log <span class="ot">&lt;-</span> <span class="cf">function</span>(beta){</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>         p <span class="ot">&lt;-</span> <span class="fu">feed_fow</span>(beta, x)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="sc">-</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">mean</span>(y<span class="sc">*</span><span class="fu">log</span>(p) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">-</span>y)<span class="sc">*</span><span class="fu">log</span>(<span class="dv">1</span><span class="sc">-</span>p))</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>   }</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  perdida_log</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Por ejemplo:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>perdida_log <span class="ot">&lt;-</span> <span class="fu">perdida_log_fun</span>(x_1, g_1) <span class="co"># crea función</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="do">## ahora dev toma solamente los 7 parámetros beta:</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">perdida_log</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.386294</code></pre>
+</div>
+</div>
+<p>Finalmente, optimizamos la devianza. Para esto usaremos la función <em>optim</em> de R:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">5</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>salida <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="fu">rnorm</span>(<span class="dv">7</span>), perdida_log, <span class="at">method =</span> <span class="st">'BFGS'</span>) <span class="co"># inicializar al azar punto inicial</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> salida<span class="sc">$</span>par</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>beta</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -24.8192588  23.0201189  -8.4364868  -6.7633493   0.9849461 -14.0157663
+[7] -14.3394678</code></pre>
+</div>
+</div>
+<p>Y ahora podemos graficar con el vector <span class="math inline">\(\beta\)</span> encontrado:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">## hacer feed forward con beta encontrados</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>p_2 <span class="ot">&lt;-</span> <span class="fu">feed_fow</span>(beta, x)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>dat_2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(x, <span class="at">p_2 =</span> p_2)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat_2, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> p_2)) <span class="sc">+</span> <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_line</span>(<span class="at">data =</span> dat_p, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> p), <span class="at">col=</span><span class="st">'red'</span>) <span class="sc">+</span><span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))<span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>   <span class="fu">geom_point</span>(<span class="at">data =</span> datos, <span class="fu">aes</span>(<span class="at">x =</span> x_1, <span class="at">y =</span> g_1))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>Los coeficientes estimados, que en este caso muchas veces se llaman <em>pesos</em>, son:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>beta <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -24.82  23.02  -8.44  -6.76   0.98 -14.02 -14.34</code></pre>
+</div>
+</div>
+<p>que parecen ser muy grandes. Igualmente, de la figura vemos que el ajuste no parece ser muy estable (esto se puede confirmar corriendo con distintos conjuntos de entrenamiento). Podemos entonces regularizar ligeramente la devianza para resolver este problema. En primer lugar, definimos la devianza regularizada (ridge), donde penalizamos todos los coeficientes que multiplican a una variable, pero no los intercepts:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>perdida_log_fun_r <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, lambda){</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># esta función es una fábrica de funciones</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>   perdida_reg <span class="ot">&lt;-</span> <span class="cf">function</span>(beta){</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>         p <span class="ot">&lt;-</span> <span class="fu">feed_fow</span>(beta, x)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>         <span class="co"># en esta regularizacion quitamos sesgos, pero puede hacerse también con sesgos.</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        <span class="sc">-</span> <span class="dv">2</span> <span class="sc">*</span> <span class="fu">mean</span>(y<span class="sc">*</span><span class="fu">log</span>(p) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">-</span>y)<span class="sc">*</span><span class="fu">log</span>(<span class="dv">1</span><span class="sc">-</span>p)) <span class="sc">+</span> lambda<span class="sc">*</span><span class="fu">sum</span>(beta[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>)]<span class="sc">^</span><span class="dv">2</span>) </span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>   }</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  perdida_reg</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>perdida_r <span class="ot">&lt;-</span> <span class="fu">perdida_log_fun_r</span>(x_1, g_1, <span class="fl">0.001</span>) <span class="co"># crea función dev</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">5</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>salida <span class="ot">&lt;-</span> <span class="fu">optim</span>(<span class="fu">rnorm</span>(<span class="dv">7</span>), perdida_r, <span class="at">method =</span> <span class="st">'BFGS'</span>) <span class="co"># inicializar al azar punto inicial</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> salida<span class="sc">$</span>par</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">perdida_log</span>(beta)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.74018</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>p_2 <span class="ot">&lt;-</span> <span class="fu">feed_fow</span>(beta, x)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>dat_2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(x, <span class="at">p_2 =</span> p_2)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat_2, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> p_2)) <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_line</span>(<span class="at">data =</span> dat_p, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> p), <span class="at">col=</span><span class="st">'red'</span>) <span class="sc">+</span> <span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">geom_point</span>(<span class="at">data =</span> datos, <span class="fu">aes</span>(<span class="at">x =</span> x_1, <span class="at">y =</span> g_1))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>y obtenemos un ajuste mucho más estable. Podemos usar también keras. El modelo, con una capa intermedia de dos unidades, y regularización ridge para los coeficientes, y optimización por descenso en gradiente se define como:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(keras)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># para reproducibilidad:</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>tensorflow<span class="sc">::</span>tf<span class="sc">$</span>random<span class="sc">$</span><span class="fu">set_seed</span>(<span class="dv">1123</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># construir modelo</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>ejemplo_mod <span class="ot">&lt;-</span> <span class="fu">keras_model_sequential</span>()</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>ejemplo_mod <span class="sc">|&gt;</span> </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">2</span>, </span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">activation =</span> <span class="st">"sigmoid"</span>, <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="fl">0.0005</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">1</span>, </span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">activation =</span> <span class="st">"sigmoid"</span>, <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="fl">0.0005</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>x_mat <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(datos<span class="sc">$</span>x_1, <span class="at">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> datos<span class="sc">$</span>g_1</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># usamos devianza como medida de error y descenso en gradiente:</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>ejemplo_mod <span class="sc">|&gt;</span> <span class="fu">compile</span>(<span class="at">loss =</span> <span class="st">"binary_crossentropy"</span>, </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="fu">optimizer_sgd</span>(<span class="at">learning_rate =</span> <span class="dv">3</span>))</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="co"># nota: esta learning rate (lr) es demasiado alta para problemas típicos</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>historia <span class="ot">&lt;-</span> ejemplo_mod <span class="sc">|&gt;</span> </span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(x_mat, y, </span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">batch_size =</span> <span class="fu">nrow</span>(x_mat), <span class="at">epochs =</span> <span class="dv">3000</span>, <span class="at">verbose =</span> <span class="dv">0</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Después de verificar convergencia (chécalo examinando la variable <em>historia</em>), graficamos para ver que obtuvimos resultados similares:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>p_3 <span class="ot">&lt;-</span> <span class="fu">predict</span>(ejemplo_mod, <span class="fu">as.matrix</span>(x, <span class="at">ncol =</span> <span class="dv">1</span>))</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>dat_3 <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x =</span> x, <span class="at">p_2 =</span> p_3)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat_3, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> p_2)) <span class="sc">+</span> <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_line</span>(<span class="at">data =</span> dat_p, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> p), <span class="at">col=</span><span class="st">'red'</span>) <span class="sc">+</span><span class="fu">ylim</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))<span class="sc">+</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">geom_point</span>(<span class="at">data =</span> datos, <span class="fu">aes</span>(<span class="at">x =</span> x_1, <span class="at">y =</span> g_1))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>Los coeficientes obtenidos están aquí: Nótese: la primera componente de la lista son los coeficientes de la unidad 1 y 2 para <span class="math inline">\(x\)</span>. La segunda son los sesgos u ordenadas al origen, la tercera los coeficientes de la respuesta para las unidades 1 y 2, y el cuarto es el sesgo u ordenada al origen de la unidad de salida:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_weights</span>(ejemplo_mod)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+         [,1]      [,2]
+[1,] 4.062385 -4.549506
+
+[[2]]
+[1] -4.769000 -4.824979
+
+[[3]]
+          [,1]
+[1,] -5.248475
+[2,] -5.199344
+
+[[4]]
+[1] 1.075099</code></pre>
+</div>
+</div>
+<p><strong>Ejercicio</strong>: compara los coeficientes que obtuviste en este ejemplo con los anteriores.</p>
+<section id="ejercicio-red" class="level4" data-number="11.1.0.1">
+<h4 data-number="11.1.0.1" class="anchored" data-anchor-id="ejercicio-red"><span class="header-section-number">11.1.0.1</span> Ejercicio</h4>
+<p>Un ejemplo más complejo. Utiliza los siguientes datos, y agrega si es necesario variables derivadas <span class="math inline">\(a_3, a_4\)</span> en la capa oculta.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>h <span class="ot">&lt;-</span> <span class="cf">function</span>(x){</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">exp</span>(x)<span class="sc">/</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="dv">2</span>,<span class="fl">0.05</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">h</span>(<span class="dv">3</span> <span class="sc">+</span> x<span class="sc">-</span> <span class="dv">3</span> <span class="sc">*</span> x <span class="sc">^</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> <span class="fu">cos</span>(<span class="dv">4</span> <span class="sc">*</span> x))</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">280572</span>)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>x_2 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">300</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>g_2 <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">300</span>, <span class="dv">1</span>, <span class="fu">h</span>(<span class="dv">3</span> <span class="sc">+</span> x_2 <span class="sc">-</span> <span class="dv">3</span> <span class="sc">*</span> x_2 <span class="sc">^</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="sc">*</span> <span class="fu">cos</span>(<span class="dv">4</span> <span class="sc">*</span> x_2)))</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(x_2, g_2)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>dat_p <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(x, p)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">qplot</span>(x, p, <span class="at">geom =</span> <span class="st">"line"</span>, <span class="at">col =</span><span class="st">"red"</span>)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>g <span class="sc">+</span> <span class="fu">geom_jitter</span>(<span class="at">data =</span> datos, <span class="fu">aes</span>(<span class="at">x =</span> x_2,<span class="at">y =</span> g_2), <span class="at">col =</span> <span class="st">"black"</span>,</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">height =</span> <span class="fl">0.05</span>), <span class="at">alpha =</span> <span class="fl">0.4</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="interacciones-en-redes-neuronales" class="level2" data-number="11.2">
+<h2 data-number="11.2" class="anchored" data-anchor-id="interacciones-en-redes-neuronales"><span class="header-section-number">11.2</span> Interacciones en redes neuronales</h2>
+<p>Es posible capturar interacciones con redes neuronales. Consideremos el siguiente ejemplo simple:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="cf">function</span>(x1, x2){</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">h</span>(<span class="sc">-</span><span class="dv">5</span> <span class="sc">+</span> <span class="dv">10</span><span class="sc">*</span>x1 <span class="sc">+</span> <span class="dv">10</span><span class="sc">*</span>x2 <span class="sc">-</span> <span class="dv">30</span><span class="sc">*</span>x1<span class="sc">*</span>x2)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">x1 =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.05</span>), <span class="at">x2 =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="fl">0.05</span>))</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">p =</span> <span class="fu">p</span>(x1, x2))</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(<span class="at">x=</span>x1, <span class="at">y=</span>x2)) <span class="sc">+</span> <span class="fu">geom_tile</span>(<span class="fu">aes</span>(<span class="at">fill=</span>p))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>Esta función puede entenderse como un o exclusivo: la probabilidad es alta sólo cuando <span class="math inline">\(x_1\)</span> y <span class="math inline">\(x_2\)</span> tienen valores opuestos (<span class="math inline">\(x_1\)</span> grande pero <span class="math inline">\(x_2\)</span> chica y viceversa).</p>
+<p>No es posible modelar esta función mediante el modelo logístico (sin interacciones). Pero podemos incluir la interacción en el modelo logístico o intentar usar una red neuronal. Primero simulamos unos datos y probamos el modelo logístico con y sin interacciones:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">322</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>dat_ent <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1 =</span> <span class="fu">runif</span>(n,<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">x2 =</span> <span class="fu">runif</span>(n, <span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">p =</span> <span class="fu">p</span>(x1, x2)) <span class="sc">|&gt;</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">y =</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p))</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>mod_1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2, <span class="at">data =</span> dat_ent, <span class="at">family =</span> <span class="st">'binomial'</span>)</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>mod_1</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:  glm(formula = y ~ x1 + x2, family = "binomial", data = dat_ent)
+
+Coefficients:
+(Intercept)           x1           x2  
+    -0.1061      -1.2042      -1.0402  
+
+Degrees of Freedom: 999 Total (i.e. Null);  997 Residual
+Null Deviance:      1093 
+Residual Deviance: 1057     AIC: 1063</code></pre>
+</div>
+</div>
+<p>El resultado del modelo logístico no es bueno:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">predict</span>(mod_1) <span class="sc">&gt;</span> <span class="fl">0.5</span>, dat_ent<span class="sc">$</span>y)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       
+          0   1
+  FALSE 764 236</code></pre>
+</div>
+</div>
+<p>Sin embargo, agregando una interacción lo mejoramos considerablemente (examina la devianza y el error de clasificación):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>mod_2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x1<span class="sc">:</span>x2, <span class="at">data =</span> dat_ent, <span class="at">family =</span> <span class="st">'binomial'</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>mod_2</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:  glm(formula = y ~ x1 + x2 + x1:x2, family = "binomial", data = dat_ent)
+
+Coefficients:
+(Intercept)           x1           x2        x1:x2  
+     -5.016        9.763       10.060      -30.100  
+
+Degrees of Freedom: 999 Total (i.e. Null);  996 Residual
+Null Deviance:      1093 
+Residual Deviance: 644.3    AIC: 652.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="fu">predict</span>(mod_2) <span class="sc">&gt;</span> <span class="fl">0.5</span>, dat_ent<span class="sc">$</span>y)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       
+          0   1
+  FALSE 735 128
+  TRUE   29 108</code></pre>
+</div>
+</div>
+<p>Observese la gran diferencia de devianza entre los dos modelos (en este caso, el sobreajuste no es un problema).</p>
+<p>Ahora consideramos qué red neuronal puede ser apropiada.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="fu">regularizer_l2</span>(<span class="fl">0.0001</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>mod_inter <span class="ot">&lt;-</span> <span class="fu">keras_model_sequential</span>()</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>mod_inter <span class="sc">|&gt;</span> </span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">4</span>, <span class="at">kernel_regularizer =</span> reg, <span class="at">activation =</span> <span class="st">"sigmoid"</span>,</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">name =</span> <span class="st">"capa_intermedia"</span>, <span class="at">input_shape =</span> <span class="fu">c</span>(<span class="dv">2</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">1</span>, <span class="at">kernel_regularizer =</span> reg, <span class="at">name =</span> <span class="st">"capa_final"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_activation</span>(<span class="st">"sigmoid"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>mod_inter <span class="sc">|&gt;</span> <span class="fu">compile</span>(<span class="at">loss =</span> <span class="st">"binary_crossentropy"</span>, </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="fu">optimizer_sgd</span>(<span class="at">learning_rate =</span> <span class="fl">0.7</span>))</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>historia <span class="ot">&lt;-</span> mod_inter <span class="sc">|&gt;</span> </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(dat_ent <span class="sc">|&gt;</span> <span class="fu">select</span>(x1, x2) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>(), dat_ent<span class="sc">$</span>y, </span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">batch_size =</span> <span class="fu">nrow</span>(dat_ent), <span class="at">epochs =</span> <span class="dv">10000</span>, <span class="at">verbose =</span> <span class="dv">0</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Verificamos que esta red captura la interacción:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">predict</span>(mod_inter,</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  dat <span class="sc">|&gt;</span> <span class="fu">select</span>(x1, x2) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>())</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">p_red =</span> preds)</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dat, <span class="fu">aes</span>(<span class="at">x =</span> x1, <span class="at">y =</span> x2)) <span class="sc">+</span> </span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="fu">aes</span>(<span class="at">fill =</span> p_red))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>Aunque podemos extraer los cálculos de la red ajustada, vamos a hacer el cálculo de la red a mano. La función feed forward es:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="fu">get_weights</span>(mod_inter)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>feed_fow <span class="ot">&lt;-</span> <span class="cf">function</span>(beta, x){</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">h</span>(<span class="fu">t</span>(beta[[<span class="dv">1</span>]]) <span class="sc">%*%</span> x <span class="sc">+</span> <span class="fu">as.matrix</span>(beta[[<span class="dv">2</span>]], <span class="dv">2</span>, <span class="dv">1</span>)) </span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">h</span>(<span class="fu">t</span>(beta[[<span class="dv">3</span>]]) <span class="sc">%*%</span> a <span class="sc">+</span> <span class="fu">as.matrix</span>(beta[[<span class="dv">4</span>]], <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>  p</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Observación</strong>: ¿cómo funciona esta red? Consideremos la capa intermedia (3 unidades) para cuatro casos: <span class="math inline">\((0,0), (0,1), (1,0), (1,1)\)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>mat_entrada <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x_1 =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">x_2 =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">1</span>)) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>capa_1 <span class="ot">&lt;-</span> <span class="fu">keras_model</span>(<span class="at">inputs =</span> mod_inter<span class="sc">$</span>input,</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">outputs =</span> <span class="fu">get_layer</span>(mod_inter, <span class="st">"capa_intermedia"</span>)<span class="sc">$</span>output)</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(capa_1, mat_entrada) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3] [,4]
+[1,] 0.04 0.46 0.93 0.00
+[2,] 0.00 0.84 0.15 0.21
+[3,] 0.86 0.81 1.00 0.23
+[4,] 0.06 0.96 0.95 0.97</code></pre>
+</div>
+</div>
+<p>Y los pesos para calcular esta capa son:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>beta[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>] </span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+          [,1]     [,2]      [,3]     [,4]
+[1,]  5.097618 1.630844  4.722352 4.791013
+[2,] -4.576377 1.804244 -4.328930 4.660860
+
+[[2]]
+[1] -3.2875116 -0.1659212  2.5774274 -6.0066304</code></pre>
+</div>
+</div>
+<p>Los pesos de la última capa son:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>beta[<span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>]</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+          [,1]
+[1,]  7.328013
+[2,]  2.227764
+[3,] -7.103217
+[4,] -5.655475
+
+[[2]]
+[1] 3.090647</code></pre>
+</div>
+</div>
+<p><strong>Ejercicio</strong>: interpreta la red en términos de qué unidades están <em>encendidas</em> (valor cercano a 1) o <em>apagadas</em> (valor cercano a 0). ¿Puedes ajustar este modelo con dos tres unidades intermedias? Haz varias pruebas: ¿qué dificultades encuentras?</p>
+</section>
+<section id="cálculo-en-redes-feed-forward" class="level2" data-number="11.3">
+<h2 data-number="11.3" class="anchored" data-anchor-id="cálculo-en-redes-feed-forward"><span class="header-section-number">11.3</span> Cálculo en redes: feed-forward</h2>
+<p>Ahora generalizamos lo que vimos arriba para definir la arquitectura básica de redes neuronales y cómo se hacen cálculos en las redes.</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A las variables originales les llamamos <em>capa de entrada</em> de la red, y a la variable de salida <em>capa de salida</em>. Puede haber más de una capa intermedia. A estas les llamamos <em>capas ocultas</em>.</p>
+<p>Cuando todas las conexiones posibles de cada capa a la siguiente están presente, decimos que la red es <em>completamente conexa</em>.</p>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid" width="500"></p>
+</div>
+</div>
+<p>Como vimos en el ejemplo de arriba, para hacer cálculos en la red empezamos con la primera capa, hacemos combinaciones lineales y aplicamos nuestra función no lineal <span class="math inline">\(h\)</span>. Una vez que calculamos la segunda capa, podemos calcular la siguiente de la misma forma: combinaciones lineales y aplicación de <span class="math inline">\(h\)</span>. Y así sucesivamente hasta que llegamos a la capa final.</p>
+</section>
+<section id="notación" class="level2" data-number="11.4">
+<h2 data-number="11.4" class="anchored" data-anchor-id="notación"><span class="header-section-number">11.4</span> Notación</h2>
+<p>Sea <span class="math inline">\(L\)</span> el número total de capas. En primer lugar, para un cierto caso de entrada <span class="math inline">\(x = (x_1,x_2,\ldots, x_p)\)</span>, denotamos por:</p>
+<ul>
+<li><span class="math inline">\(a^{(l)}_j\)</span> el valor que toma la unidad <span class="math inline">\(j\)</span> de la capa <span class="math inline">\(l\)</span>, para <span class="math inline">\(j=0,1,\ldots, n_{l}\)</span>, donde <span class="math inline">\(n_l\)</span> es el número de unidades de la capa <span class="math inline">\(l\)</span>.</li>
+<li>Ponemos <span class="math inline">\(a^{(l)}_0=1\)</span> para lidiar con los sesgos.</li>
+<li>*En particular, ponemos <span class="math inline">\(a^{(1)}_j = x_j\)</span>, que son los valores de las entradas (primera capa)</li>
+<li>Para clasificación binaria, la última capa solo tiene un elemento, que es <span class="math inline">\(p_1 = a^{(L)}\)</span>. Para un problema de clasificación en <span class="math inline">\(K&gt;2\)</span> clases, tenemos que la última capa es de tamaño <span class="math inline">\(K\)</span>: <span class="math inline">\(p_1 = a^{(L)}_1, p_2 = a^{(L)}_2,\ldots, p_K = a^{(L)}_K\)</span></li>
+</ul>
+<p>Adicionalmente, escribimos</p>
+<p><span class="math inline">\(\theta_{i,k}^{(l)}=\)</span> es el peso de entrada <span class="math inline">\(a_{k}^{(l-1)}\)</span> de capa <span class="math inline">\(l-1\)</span> en la entrada <span class="math inline">\(a_{i}^{(l)}\)</span> de la capa <span class="math inline">\(l\)</span>.</p>
+<p>Los sesgos están dados por</p>
+<p><span class="math display">\[\theta_{i,0}^{(l)}\]</span></p>
+<section id="ejemplo" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="ejemplo">Ejemplo</h4>
+<p>En nuestro ejemplo, tenemos que en la capa <span class="math inline">\(l=3\)</span> hay dos unidades. Así que podemos calcular los valores <span class="math inline">\(a^{(3)}_1\)</span> y <span class="math inline">\(a^{(3)}_2\)</span>. Están dados por</p>
+<p><span class="math display">\[a_1^{(3)} = h(\theta_{1,0}^{(2)} + \theta_{1,1}^{(2)} a_1^{(2)}+ \theta_{1,2}^{(2)}a_2^{(2)}+ \theta_{1,3}^{(2)} a_3^{(2)})\]</span></p>
+<p><span class="math display">\[a_2^{(3)} = h(\theta_{2,0}^{(2)} + \theta_{2,1}^{(2)} a_1^{(2)}+ \theta_{2,2}^{(2)}a_2^{(2)}+ \theta_{2,3}^{(2)} a_3^{(2)})\]</span></p>
+<p>Como se ilustra en la siguiente gráfica:</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="550"></p>
+</div>
+</div>
+<p>Para visualizar las ordenadas (que también se llaman <strong>sesgos</strong> en este contexto), ponemos <span class="math inline">\(a_{0}^{(2)}=1\)</span>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid" width="550"></p>
+</div>
+</div>
+</section>
+<section id="ejemplo-1" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="ejemplo-1">Ejemplo</h4>
+<p>Consideremos propagar a la capa 3 a partir de la capa 2. Usaremos los siguientes pesos para capa 3 y valores de la capa 2 (en gris están los sesgos):</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid" width="500"></p>
+</div>
+</div>
+<p>Que en nuestra notación escribimos como</p>
+<p><span class="math display">\[a^{(2)}_0 = 1, a^{(2)}_1 = -2, a^{(2)}_2 = 5, a^{(2)}=3\]</span></p>
+<p>y los pesos son, para la primera unidad:</p>
+<p><span class="math display">\[\theta^{(2)}_{1,0} = 3,  \,\,\, \theta^{(2)}_{1,1} = 1.5,\,\,\,\theta^{(2)}_{1,2} = -1,\,\,\theta^{(2)}_{1,3} = -0.5 \]</span></p>
+<p>y para la segunda unidad</p>
+<p><span class="math display">\[\theta^{(2)}_{2,0} = 1,  \,\,\, \theta^{(2)}_{2,1} = 2,\,\,\,\theta^{(2)}_{2,2} = 0.5,\,\, \theta^{(2)}_{2,3} = -0.2\]</span></p>
+<p>Y ahora queremos calcular los valores que toman las unidades de la capa 3, que son <span class="math inline">\(a^{(3)}_1\)</span> y <span class="math inline">\(a^{(3)}_2\)</span>$</p>
+<p>Para hacer feed forward a la siguiente capa, hacemos entonces</p>
+<p><span class="math display">\[a^{(3)}_1 = h(3 + a^{(2)}_1 - a^{(2)}_2 -0.5 a_3^{(2)}),\]</span></p>
+<p><span class="math display">\[a^{(3)}_2 = h(1 + 2a^{(2)}_1 + 0.5a^{(2)}_2 - 0.2 a_3^{(2)}),\]</span></p>
+<p>Ponemos los pesos y valores de la capa 2 (incluyendo sesgo):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>a_2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">3</span>) <span class="co"># ponemos un 1 al principio para el sesgo</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>theta_2_1 <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="fl">1.5</span>, <span class="sc">-</span><span class="fl">1.0</span>, <span class="sc">-</span><span class="fl">0.5</span>)</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>theta_2_2 <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="fl">0.5</span>, <span class="sc">-</span><span class="fl">0.2</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>y calculamos</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>a_3 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fu">h</span>(<span class="fu">sum</span>(theta_2_1<span class="sc">*</span>a_2)),<span class="fu">h</span>(<span class="fu">sum</span>(theta_2_2<span class="sc">*</span>a_2))) <span class="co"># ponemos un 1 al principio</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>a_3</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.000000000 0.001501182 0.249739894</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid" width="500"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="algoritmo-de-feed-forward" class="level2" data-number="11.5">
+<h2 data-number="11.5" class="anchored" data-anchor-id="algoritmo-de-feed-forward"><span class="header-section-number">11.5</span> Algoritmo de Feed forward</h2>
+<p>Para calcular los valores de salida de una red a partir de pesos y datos de entrada, usamos el algoritmo feed-forward, calculando capa por capa.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Feed-forward
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Para la primera capa, escribimos las variables de entrada:</p>
+<p><span class="math display">\[a^{(1)}_j = x_j, j=1\ldots,n_1\]</span></p>
+<p>Para la primera capa oculta, o la segunda capa</p>
+<p><span class="math display">\[a^{(2)}_j = h\left( \theta_{j,0}^{(1)}+ \sum_{k=1}^{n_1}  \theta_{j,k}^{(1)}  a^{(1)}_k    \right), j=1\ldots,n_2\]</span></p>
+<p>para la <span class="math inline">\(l\)</span>-ésima capa:</p>
+<p><span class="math display">\[a^{(l)}_j = h\left( \theta_{j,0}^{(l-1)}+ \sum_{k=1}^{n_{l-1}}  \theta_{j,k}^{(l-1)}  a^{(l-1)}_k    \right), j=1\ldots,n_{l}\]</span></p>
+<p>y así sucesivamente. Para la capa final o capa de salida (para problema binario), suponiendo que tenemos <span class="math inline">\(L\)</span> capas (<span class="math inline">\(L-2\)</span> capas ocultas):</p>
+<p><span class="math display">\[p_1 = h\left(    \theta_{1,0}^{(L-1)}+ \sum_{k=1}^{n_{L-1}}  \theta_{1,k}^{(L-1)}  a^{(L-1)}_k     \right).\]</span></p>
+</div>
+</div>
+<p>Nótese que entonces:</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Cada capa se caracteriza por el conjunto de parámetros <span class="math inline">\(\Theta^{(l)}\)</span>, que es una matriz de <span class="math inline">\(n_l\times n_{l-1}\)</span>.</p>
+<p>La red completa entonces se caracteriza por:</p>
+<ul>
+<li>La estructura elegida (número de capas ocultas y número de nodos en cada capa oculta).</li>
+<li>Las matrices de pesos en cada capa <span class="math inline">\(\Theta^{(1)},\Theta^{(2)},\ldots, \Theta^{(L-1)}\)</span></li>
+</ul>
+</div>
+</div>
+<p>Adicionalmente, escribimos en forma vectorial:</p>
+<p><span class="math display">\[a^{(l)} = (a^{(l)}_0, a^{(l)}_1, a^{(l)}_2, \ldots, a^{(l)}_{n_l})^t\]</span></p>
+<p>Para calcular la salidas, igual que hicimos, antes, propagaremos hacia adelante los valores de las variables de entrada usando los <em>pesos</em>. Agregando entradas adicionales en cada capa <span class="math inline">\(a_0^{(l)}\)</span>, <span class="math inline">\(l=1,2,\ldots, L-1\)</span>, donde <span class="math inline">\(a_0^{l}=1\)</span>, y agregando a <span class="math inline">\(\Theta^{(l)}\)</span> una columna con las ordenadas al origen (o sesgos) podemos escribir:</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Feed-forward matricial
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Capa 1 (vector de entradas)</li>
+</ul>
+<p><span class="math display">\[ a^{(1)} = x\]</span></p>
+<ul>
+<li>Capa 2</li>
+</ul>
+<p><span class="math display">\[ a^{(2)} = h(\Theta^{(1)}a^{(1)})\]</span></p>
+<ul>
+<li>Capa <span class="math inline">\(l\)</span> (oculta)</li>
+</ul>
+<p><span class="math display">\[ a^{(l)} = h(\Theta^{(l-1)}a^{(l-1)})\]</span></p>
+<ul>
+<li>Capa de salida:</li>
+</ul>
+<p>En un problema de clasificación binaria, la capa de salida se calcula como en regresión logística:</p>
+<p><span class="math display">\[a^{(L)}= p = h(\Theta^{(L-1)}a^{(L-1)})\]</span></p>
+<p>donde <span class="math inline">\(h\)</span> se aplica componente a componente sobre los vectores correspondientes. Nótese que feed-foward consiste principalmente de multiplicaciones de matrices con algunas aplicaciones de <span class="math inline">\(h\)</span></p>
+<p>Para un problema de regresión, la última capa se calcula como en regresión lineal:</p>
+<p><span class="math display">\[a^{(L)} = p = \Theta^{(L-1)}a^{(L-1)}\]</span></p>
+</div>
+</div>
+</section>
+<section id="algoritmo-de-backpropagation-cálculo-del-gradiente-clasificación-binaria" class="level2" data-number="11.6">
+<h2 data-number="11.6" class="anchored" data-anchor-id="algoritmo-de-backpropagation-cálculo-del-gradiente-clasificación-binaria"><span class="header-section-number">11.6</span> Algoritmo de Backpropagation: cálculo del gradiente (clasificación binaria)</h2>
+<p>Más adelante, para ajustar los pesos y sesgos de las redes (valores <span class="math inline">\(\theta\)</span>), utilizaremos descenso en gradiente y otros algoritmos derivados del gradiente (descenso estocástico). En esta parte entonces veremos cómo calcular estos gradientes con el algoritmo de <em>back-propagation</em>, que es una aplicación de la regla de la cadena para derivar. Back-propagation resulta en una fórmula recursiva donde propagamos errores de la red como gradientes desde el final de red (capa de salida) hasta el principio, capa por capa.</p>
+<p><strong>Consideramos el problema de clasificación binaria</strong></p>
+<p>Recordamos la devianza (con regularización ridge) es</p>
+<p><span class="math display">\[D = -\frac{2}{n}\sum_{i=1}^n y_i\log(p_1(x_i)) +(1-y_i)\log(1-p_1(x_i)) + \lambda \sum_{l=2}^{L} \sum_{k=1}^{n_{l-1}} \sum_{j=1}^{n_l}(\theta_{j,k}^{(l)})^2.\]</span></p>
+<p>Queremos entonces calcular las derivadas de la devianza con respecto a cada parámetro <span class="math inline">\(\theta_{j,k}^{(l)}\)</span>. Esto nos proporciona el gradiente para nuestro algoritmo de descenso.</p>
+<p><strong>Consideramos aquí el problema de clasificación binaria con devianza como función de pérdida, y sin regularización</strong>. La parte de la parcial que corresponde al término de regularización es fácil de agregar al final.</p>
+<p>Recordamos también nuestra notación para la función logística (o sigmoide):</p>
+<p><span class="math display">\[h(z)=\frac{1}{1+e^{-z}}.\]</span></p>
+<p>Necesitaremos su derivada, que está dada por (cálculala):</p>
+<p><span class="math display">\[h'(z) = h(z)(1-h(z))\]</span></p>
+<section id="cálculo-para-un-caso-de-entrenamiento" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="cálculo-para-un-caso-de-entrenamiento">Cálculo para un caso de entrenamiento</h3>
+<p>Como hicimos en regresión logística, primero simplificamos el problema y consideramos calcular las parciales <em>para un solo caso de entrenamiento</em> <span class="math inline">\((x,y)\)</span>:</p>
+<p><span class="math display">\[ D=  -\left ( y\log (p_1(x)) + (1-y)\log (1-p_1(x))\right) . \]</span></p>
+<p>Después sumaremos sobre toda la muestra de entrenamiento. Entonces queremos calcular</p>
+<p><span class="math display">\[\frac{\partial D}{\partial \theta_{j,k}^{(l)}}\]</span></p>
+<p>Y escribiremos, con la notación de arriba,</p>
+<p><span class="math display">\[a^{(l+1)}_j = h(z^{(l+1)}_j)\]</span></p>
+<p>donde</p>
+<p><span class="math display">\[z^{(l+1)} = \Theta^{(l)} a^{(l)},\]</span></p>
+<p>que coordenada a coordenada se escribe como</p>
+<p><span class="math display">\[z^{(l+1)}_j =  \sum_{k=0}^{n_{l}}  \theta_{j,k}^{(l)}  a^{(l)}_k\]</span></p>
+<section id="paso-1-derivar-respecto-a-capa-l1" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="paso-1-derivar-respecto-a-capa-l1">Paso 1: Derivar respecto a capa <span class="math inline">\(l+1\)</span></h4>
+<p>Como los valores de cada capa determinan los valores de salida y la devianza, podemos escribir (recordemos que <span class="math inline">\(a_0^{(l)}=1\)</span> es constante):</p>
+<p><span class="math display">\[D=D(a_0^{(l+1)},a_1^{(l+1)},a_2^{(l+1)},\ldots, a_{n_{l+1}}^{(l+1)})=D(a_1^{(l+1)},a_2^{(l+1)},\ldots, a_{n_{l+1}}^{(l+1)})\]</span></p>
+<p>Así que por la regla de la cadena para varias variables:</p>
+<p><span class="math display">\[\frac{\partial D}{\partial \theta_{j,k}^{(l)}} =
+\sum_{t=1}^{n_{l}} \frac{\partial D}{\partial a_t^{(l+1)}}\frac{\partial a_t^{(l+1)}}
+{\partial \theta_{j,k}^{(l)} }\]</span></p>
+<p>Pero si vemos dónde aparece <span class="math inline">\(\theta_{j,k}^{(l)}\)</span> en la gráfica de la red:</p>
+<p><span class="math display">\[ \cdots a^{(l)}_k \xrightarrow{\theta_{j,k}^{(l)}} a^{(l+1)}_j  \cdots \rightarrow  D\]</span></p>
+<p>Entonces podemos concluir que <span class="math inline">\(\frac{\partial a_t^{(l+1)}}{\partial \theta_{j,k}^{(l)}} =0\)</span> cuando <span class="math inline">\(t\neq j\)</span> (pues no dependen de <span class="math inline">\(\theta_{j,k}^{(l)}\)</span>),</p>
+<p>y entonces, para toda <span class="math inline">\(j=1,2,\ldots, n_{l+1}, k=0,1,\ldots, n_{l}\)</span> <span class="math display">\[\begin{equation}
+\frac{\partial D}{\partial \theta_{j,k}^{(l)}} =
+\frac{\partial D}{\partial a_j^{(l+1)}}\frac{\partial a_j^{(l+1)}}{\partial \theta_{j,k}^{(l)} }
+.
+  (\#eq:parcial)
+\end{equation}\]</span></p>
+<p>Adicionalmente, como</p>
+<p><span class="math display">\[a_j^{(l+1)} = h(z_j^{(l+1)}) = h\left (\sum_{k=0}^{n_{l}}  \theta_{j,k}^{(l)}  a^{(l)}_k \right )\]</span></p>
+<p>y las <span class="math inline">\(a_k^{(l)}\)</span> no dependen de <span class="math inline">\(\theta_{j,k}^{(l)}\)</span>, tenemos por la regla de la cadena que <span class="math display">\[\begin{equation}
+\frac{\partial a_j^{(l+1)}}{\partial \theta_{j,k}^{(l)} } = h'(z_j^{(l+1)})a_k^{(l)}.
+\end{equation}\]</span></p>
+<p>Esta última expresión podemos calcularla pues sólo requiere la derivada de <span class="math inline">\(h\)</span> y los valores otenidos en el paso de feed-forward.</p>
+</section>
+<section id="paso-2-obtener-fórmula-recursiva" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="paso-2-obtener-fórmula-recursiva">Paso 2: Obtener fórmula recursiva</h4>
+<p>Así que sólo nos queda calcular las parciales (<span class="math inline">\(j = 1,\ldots, n_l\)</span>)</p>
+<p><span class="math display">\[\frac{\partial D}{\partial a_j^{(l)}}\]</span></p>
+<p>Para obtener una fórmula recursiva para esta cantidad (hacia atrás), aplicamos otra vez regla de la cadena, pero con respecto a la capa <span class="math inline">\(l\)</span> (ojo: queremos obtener una fórmula recursiva!):</p>
+<p>$$= <em>{s=1}^{n</em>{l+1}}</p>
+<p>,$$</p>
+<p>que se puede entender a partir de este diagrama:</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-41-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Nótese que la suma empieza en <span class="math inline">\(s=1\)</span>, no en <span class="math inline">\(s=0\)</span>, pues <span class="math inline">\(a_0^{(l+1)}\)</span> no depende de <span class="math inline">\(a_k^{(l)}\)</span>.</p>
+<p>En este caso los elementos de la suma no se anulan necesariamente. Primero consideramos la derivada de:</p>
+<p><span class="math display">\[\frac{\partial  a_s^{(l+1)}}{\partial a_j^{(l)}}=h'(z_s^{(l+1)})\theta_{s,j}^{(l)},\]</span></p>
+<p>de modo que</p>
+<p><span class="math display">\[\frac{\partial D}{\partial a_j^{(l)}}= \sum_{s=1}^{n_l}
+\frac{\partial D}{\partial a_s^{(l+1)}} h'(z_s^{(l+1)})\theta_{s,j}^{(l)}.\]</span></p>
+<p>Nótese que esto nos da una fórmula recursiva para las parciales que nos falta calcular (de <span class="math inline">\(D\)</span> con respecto a <span class="math inline">\(a\)</span>), pues las otras cantidades las conocemos por backpropagation.</p>
+</section>
+<section id="paso-3-simplificación-de-la-recursión" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="paso-3-simplificación-de-la-recursión">Paso 3: Simplificación de la recursión</h4>
+<p><span class="math display">\[\begin{equation}
+\delta_s^{ (l+1)}=\frac{\partial D}{\partial a_s^{(l+1)}} h'(z_s^{(l+1)})
+  (\#eq:delta-def-a)
+\end{equation}\]</span></p>
+<p>de manera que la ecuación recursiva es</p>
+<p><span class="math display">\[\begin{equation}
+\frac{\partial D}{\partial a_j^{(l)}} = \sum_{s=1}^{n_{l+1}}
+\delta_s^{(l+1)}\theta_{s,j}^{(l)}.
+  (\#eq:delta-def)
+\end{equation}\]</span></p>
+<p>Tenemos que si <span class="math inline">\(l=2,\ldots,L-1\)</span>, entonces podemos escribir (usando @ref(eq:delta-def)) como fórmula recursiva:</p>
+<p><span class="math display">\[\begin{equation}
+\delta_j^{(l)}
+= \left (\sum_{s=1}^{n_l} \delta_s^{(l+1)} \theta_{s,j}^{(l)}\right ) h'(z_j^{(l)}),
+  (\#eq:delta-recursion)
+\end{equation}\]</span> para <span class="math inline">\(j=1,2,\ldots, n_{l}\)</span>.</p>
+</section>
+<section id="paso-4-condiciones-inciales" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="paso-4-condiciones-inciales">Paso 4: Condiciones inciales</h4>
+<p>Para la última capa, tenemos que (demostrar!)</p>
+<p><span class="math display">\[\delta_1^{(L)}=p - y.\]</span></p>
+</section>
+<section id="paso-5-cálculo-de-parciales" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="paso-5-cálculo-de-parciales">Paso 5: Cálculo de parciales</h4>
+<p>Finalmente, usando @ref(eq:parcial) y @ref(eq:delta-def-a) , obtenemos</p>
+<p><span class="math display">\[\frac{\partial D}{\partial \theta_{j,k}^{(l)}} = \delta_j^{(l+1)}a_k^{(l)},\]</span></p>
+<p>y con esto ya podemos hacer backpropagation para calcular el gradiente sobre cada caso de entrenamiento, y solo resta acumular para obtener el gradiente sobre la muestra de entrenamiento.</p>
+<p>Muchas veces es útil escribir una versión vectorizada (importante para implementar):</p>
+</section>
+<section id="paso-6-versión-matricial" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="paso-6-versión-matricial">Paso 6: Versión matricial</h4>
+<p>Ahora podemos escribir estas ecuaciones en forma vectorial. En primer lugar,</p>
+<p><span class="math display">\[\delta^{(L)}=p-y.\]</span></p>
+<p>Y además se puede ver de la ecuación @ref(eq:delta-recursion) que (<span class="math inline">\(\Theta_{*}^{(l+1)}\)</span> denota la matriz de pesos <em>sin</em> la columna correspondiente al sesgo):</p>
+<p><span class="math display">\[\begin{equation}
+\delta^{(l)}=\left( \Theta_{*}^{(l)}    \right)^t\delta^{(l+1)} \circ h'(z^{(l)})
+(\#eq:delta-recursion-mat)
+\end{equation}\]</span></p>
+<p>donde <span class="math inline">\(\circ\)</span> denota el producto componente a componente.</p>
+<p>Ahora todo ya está calculado. Lo interesante es que las <span class="math inline">\(\delta^{(l)}\)</span> se calculan de manera recursiva.</p>
+</section>
+</section>
+<section id="algoritmo-de-backpropagation" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="algoritmo-de-backpropagation">Algoritmo de backpropagation</h3>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Nota
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>#Backpropagation</p>
+<p>Para problema de clasificación con regularización $ $. Para <span class="math inline">\(i=1,\ldots, N,\)</span> tomamos el dato de entrenamiento <span class="math inline">\((x^{(i)}, y^{(i)})\)</span> y hacemos:</p>
+<ol type="1">
+<li>Ponemos <span class="math inline">\(a^{(1)}=x^{(i)}\)</span> (vector de entradas, incluyendo 1).</li>
+<li>Calculamos <span class="math inline">\(a^{(2)},a^{(3)},\ldots, a^{(L)}\)</span> usando feed forward para la entrada <span class="math inline">\(x^{(i)}.\)</span></li>
+<li>Calculamos <span class="math inline">\(\delta^{(L)}=a^{(L)}-y^{(i)}\)</span>, y luego <span class="math inline">\(\delta^{(L-1)},\ldots, \delta^{(2)}\)</span> según la recursión @ref(eq:delta-recursion).</li>
+<li>Acumulamos <span class="math inline">\(\Delta_{j,k}^{(l)}=\Delta_{j,k}^{(l)} + \delta_j^{(l+1)}a_k^{(l)}\)</span>.</li>
+<li>Finalmente, ponemos, si <span class="math inline">\(k\neq 0\)</span>,</li>
+</ol>
+<p><span class="math display">\[D_{j,k}^{(l)} = \frac{2}{N}\Delta_{j,k}^{(l)} + 2\lambda\theta_{j,k}^{(l)}\]</span></p>
+<p>y si <span class="math inline">\(k=0\)</span>,</p>
+<p><span class="math display">\[D_{j,k}^{(l)} = \frac{2}{N}\Delta_{j,k}^{(l)} .\]</span></p>
+<p>Entonces:</p>
+<p><span class="math display">\[D_{j,k}^{(l)} =\frac{\partial D}{\partial \theta_{j,k}^{(l)}}.\]</span></p>
+<p>Nótese que back-propagation consiste principalmente de mutliplicaciones de matrices con algunas aplicaciones de <span class="math inline">\(h\)</span> y acumulaciones, igual que feed-forward.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="ajuste-de-parámetros-introducción" class="level2" data-number="11.7">
+<h2 data-number="11.7" class="anchored" data-anchor-id="ajuste-de-parámetros-introducción"><span class="header-section-number">11.7</span> Ajuste de parámetros (introducción)</h2>
+<p>Consideramos la versión con regularización ridge (también llamada L2) de la devianza de entrenamiento como nuestro función objetivo:</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Ajuste de redes neuronales
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Para un problema de clasificación binaria con <span class="math inline">\(y_i=0\)</span> o <span class="math inline">\(y_i=1\)</span>, ajustamos los pesos <span class="math inline">\(\Theta^{(1)},\Theta^{(2)},\ldots, \Theta^{(L)}\)</span> de la red minimizando la devianza (penalizada) sobre la muestra de entrenamiento:</p>
+<p><span class="math display">\[D = -\frac{2}{n}\sum_{i=1}^n y_i\log(p_1(x_i)) +(1-y_i)\log(1-p_1(x_i)) + \lambda \sum_{l=2}^{L} \sum_{k=1}^{n_{l-1}} \sum_{j=1}^{n_l}(\theta_{j,k}^{(l)})^2.\]</span></p>
+<p>Este problema en general no es convexo y <em>puede tener múltiples mínimos</em>.</p>
+</div>
+</div>
+<p>Veremos el proceso de ajuste, selección de arquitectura, etc. más adelante. Por el momento hacemos unas observaciones acerca de este problema de minimización:</p>
+<ul>
+<li><p>Hay varios algoritmos para minimizar esta devianza, algunos avanzados incluyendo información de segundo orden (como Newton), pero actualmente las técnicas más populares, para redes grandes, están derivadas de descenso en gradiente. Más específicamente, una variación, que es <em>descenso estocástico</em>.</p></li>
+<li><p>Que el algoritmo depende principalmente de multiplicaciones de matrices y acumulaciones implica que puede escalarse de diversas maneras. Una es paralelizando sobre la muestra de entrenamiento (y calcular acumulados al final), pero también se pueden paralelizar las multiplicaciones de matrices (para lo cual los GPUs se prestan muy bien).</p></li>
+<li><p>Para redes neuronales, el gradiente se calcula con un algoritmo que se llama <em>back-propagation</em>, que es una aplicación de la regla de la cadena para propagar errores desde la capa de salida a lo largo de todas las capas para ajustar los pesos y sesgos.</p></li>
+<li><p>En estos problemas no buscamos el mínimo global, sino un mínimo local de buen desempeño. Puede haber múltiples mínimos, puntos silla, regiones relativamente planas, precipicios (curvatura alta). Nótese que la simetría implica que podemos obtener la misma red cambiando pesos entre neuronas y las conexiones correspondientes. Esto implica que necesariamente hay varios mínimos.</p></li>
+<li><p>Todo esto dificulta el entrenamiento de redes neuronales grandes. Para redes grandes, ni siquiera esperamos a alcanzar un mínimo local, sino que nos a veces detenemos prematuramente cuando obtenemos el mejor desempeño posible.</p></li>
+<li><p>Para este problema, no tiene sentido comenzar las iteraciones con todos los pesos igual a cero, pues las unidades de la red son simétricas: no hay nada que distinga una de otra si todos los pesos son iguales. Esto quiere decir que si iteramos, todas las neuronas van a aprender lo mismo.</p></li>
+<li><p>Es importante no comenzar valores de los pesos grandes, pues las funciones logísticas pueden quedar en regiones planas donde la minimización es lenta, o podemos tener gradientes demasiado grandes y produzcan inestabilidad en el cálculo del gradiente.</p></li>
+<li><p>El ajuste de la tasa de aprendizaje es más delicado que para problemas convexos. Generalmente lo tratamos con un hiperparámetro más que hay que afinar. Tasas demasiado grandes pueden llevarnos a mínimos locales relativamente malos.</p></li>
+<li><p>Generalmente los pesos se inicializan al azar con variables independientes gaussianas o uniformes centradas en cero, y con varianza chica (por ejemplo <span class="math inline">\(U(-0.5,0.5)\)</span>). Una recomendación es usar <span class="math inline">\(U(-1/\sqrt{m}, 1/\sqrt{m})\)</span> donde <span class="math inline">\(m\)</span> es el número de entradas. En general, hay que experimentar con este parámetro.</p></li>
+</ul>
+<p>El proceso para ajustar una red es entonces:</p>
+<ul>
+<li>Definir número de capas ocultas, número de neuronas por cada capa, y un valor del parámetro de regularización. Estandarizar las entradas.</li>
+<li>Seleccionar parámetros al azar para <span class="math inline">\(\Theta^{(2)},\Theta^{(3)},\ldots, \Theta^{(L)}\)</span>. Se toman, por ejemplo, normales con media 0 y varianza chica.</li>
+<li>Correr un algoritmo de minimización de la devianza mostrada arriba. <strong>Es necesario experimentar con los parámetros del algoritmo de minimización</strong>.</li>
+<li>Verificar convergencia del algoritmo a un mínimo local (o el algoritmo no está mejorando).</li>
+<li>Predecir usando el modelo ajustado.</li>
+</ul>
+<p>Finalmente, podemos probar distintas arquitecturas y valores del parámetros de regularización, para afinar estos parámetros según validación cruzada o una muestra de validación.</p>
+<section id="ejemplo-2" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ejemplo-2">Ejemplo</h3>
+<p>Consideramos una arquitectura de dos capas para el problema de diabetes</p>
+<p>Escalamos y preparamos los datos:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>diabetes_ent <span class="ot">&lt;-</span> MASS<span class="sc">::</span>Pima.tr</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>diabetes_pr <span class="ot">&lt;-</span> MASS<span class="sc">::</span>Pima.te</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>x_ent <span class="ot">&lt;-</span> diabetes_ent <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>type) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>x_ent_s <span class="ot">&lt;-</span> <span class="fu">scale</span>(x_ent)</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>x_valid <span class="ot">&lt;-</span> diabetes_pr <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>type) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>x_valid_s <span class="ot">&lt;-</span> x_valid <span class="sc">|&gt;</span></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale</span>(<span class="at">center =</span> <span class="fu">attr</span>(x_ent_s, <span class="st">'scaled:center'</span>), </span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">scale =</span> <span class="fu">attr</span>(x_ent_s,  <span class="st">'scaled:scale'</span>))</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>y_ent <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(diabetes_ent<span class="sc">$</span>type <span class="sc">==</span> <span class="st">'Yes'</span>)</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>y_valid <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(diabetes_pr<span class="sc">$</span>type <span class="sc">==</span> <span class="st">'Yes'</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Para definir la arquitectura de dos capas con:</p>
+<ul>
+<li>10 unidades en cada capa</li>
+<li>función de activación sigmoide,</li>
+<li>regularización L2 (ridge),</li>
+<li>salida logística (<span class="math inline">\(p_1\)</span>), escribimos:</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="ot">&lt;-</span> <span class="fu">keras_model_sequential</span>() </span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="co"># no es necesario asignar a nuevo objeto, modelo_tc es modificado al agregar capas</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="sc">|&gt;</span> </span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">10</span>, <span class="at">activation =</span> <span class="st">'sigmoid'</span>, </span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="at">l =</span> <span class="fl">1e-3</span>), </span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_initializer =</span> <span class="fu">initializer_random_uniform</span>(<span class="at">minval =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">maxval =</span> <span class="fl">0.5</span>),</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">input_shape=</span><span class="dv">7</span>) <span class="sc">|&gt;</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">10</span>, <span class="at">activation =</span> <span class="st">'sigmoid'</span>, </span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="at">l =</span> <span class="fl">1e-3</span>), </span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_initializer =</span> <span class="fu">initializer_random_uniform</span>(<span class="at">minval =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">maxval =</span> <span class="fl">0.5</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">1</span>, <span class="at">activation =</span> <span class="st">'sigmoid'</span>,</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="at">l =</span> <span class="fl">1e-3</span>),</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_initializer =</span> <span class="fu">initializer_random_uniform</span>(<span class="at">minval =</span> <span class="sc">-</span><span class="fl">0.5</span>, <span class="at">maxval =</span> <span class="fl">0.5</span>)</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Ahora difinimos la función de pérdida (devianza es equivalente a entropía cruzada binaria), y pedimos registrar porcentaje de correctos (accuracy) y compilamos en tensorflow:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="sc">|&gt;</span> <span class="fu">compile</span>(</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">loss =</span> <span class="st">'binary_crossentropy'</span>,</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="fu">optimizer_sgd</span>(<span class="at">learning_rate =</span> <span class="fl">0.3</span>),</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">metrics =</span> <span class="fu">c</span>(<span class="st">'accuracy'</span>,<span class="st">'binary_crossentropy'</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Iteramos con descenso en gradiente y monitoreamos el error de validación. Hacemos 500 iteraciones de descenso en gradiente (épocas=500)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>iteraciones <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">fit</span>(</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  x_ent_s, y_ent, </span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#batch size mismo que nrow(x_ent_s) es descenso en grad.</span></span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">epochs =</span> <span class="dv">500</span>, <span class="at">batch_size =</span> <span class="fu">nrow</span>(x_ent_s), </span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>,</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">validation_data =</span> <span class="fu">list</span>(x_valid_s, y_valid)</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">evaluate</span>(x_valid_s, y_valid)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>score</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               loss            accuracy binary_crossentropy 
+          0.4686920           0.8012048           0.4361359 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>preds_proba <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">predict</span>(x_valid_s)</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>clasificador_1 <span class="ot">&lt;-</span> preds_proba <span class="sc">&gt;</span> <span class="fl">0.5</span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>tab_confusion <span class="ot">&lt;-</span> <span class="fu">table</span>(clasificador_1, y_valid) </span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>tab_confusion</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              y_valid
+clasificador_1   0   1
+         FALSE 196  39
+         TRUE   27  70</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">prop.table</span>(tab_confusion, <span class="dv">2</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              y_valid
+clasificador_1         0         1
+         FALSE 0.8789238 0.3577982
+         TRUE  0.1210762 0.6422018</code></pre>
+</div>
+</div>
+<p>Es importante monitorear las curvas de aprendizaje (entrenamiento y validación) para diagnosticar mejoras:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>df_iteraciones <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(iteraciones)</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_iteraciones, <span class="fu">aes</span>(<span class="at">x =</span> epoch, <span class="at">y =</span> value, <span class="at">colour =</span> data, <span class="at">group =</span> data)) <span class="sc">+</span> </span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>metric, <span class="at">ncol=</span><span class="dv">1</span>, <span class="at">scales =</span> <span class="st">'free'</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-47-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+<p><strong>Observación</strong>: puedes utilizar <em>Tensorboard</em>, una herramienta para visualizar resultados del entrenamiento de modelos incluída en <em>Tensorflow</em> (que es lo que usa <em>keras</em> para hacer los cálculos):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="sc">|&gt;</span> <span class="fu">compile</span>(</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">loss =</span> <span class="st">'binary_crossentropy'</span>,</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="fu">optimizer_sgd</span>(<span class="at">learning_rate =</span> <span class="fl">0.3</span>),</span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">metrics =</span> <span class="fu">c</span>(<span class="st">'accuracy'</span>,<span class="st">'binary_crossentropy'</span>))</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>iteraciones <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">fit</span>(</span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>  x_ent_s, y_ent, </span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#batch size mismo que nrow(x_ent_s) es descenso en grad.</span></span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">epochs =</span> <span class="dv">100</span>, <span class="at">batch_size =</span> <span class="dv">50</span>, </span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>,</span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">callbacks =</span> <span class="fu">callback_tensorboard</span>(<span class="st">"logs/diabetes/run_2"</span>),</span>
+<span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">validation_data =</span> <span class="fu">list</span>(x_valid_s, y_valid)</span>
+<span id="cb58-12"><a href="#cb58-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>y después puedes hacer:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tensorboard</span>(<span class="st">"logs/diabetes/"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="ejemplo-3" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ejemplo-3">Ejemplo</h3>
+<p>Ahora hacemos algunos ejemplos para redes totalmente conexas. Usaremos datos de reconocimiento de dígitos (imágenes de 16x16 en grises).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>digitos_entrena <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">'../datos/zip-train.csv'</span>)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>digitos_prueba <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">'../datos/zip-test.csv'</span>)</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(digitos_entrena)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">'digito'</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(digitos_entrena)[<span class="dv">2</span><span class="sc">:</span><span class="dv">257</span>] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">'pixel_'</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">256</span>)</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(digitos_prueba)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">'digito'</span></span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(digitos_prueba)[<span class="dv">2</span><span class="sc">:</span><span class="dv">257</span>] <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">'pixel_'</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">256</span>)</span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(digitos_entrena)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 7291  257</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(digitos_entrena<span class="sc">$</span>digito)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+   0    1    2    3    4    5    6    7    8    9 
+1194 1005  731  658  652  556  664  645  542  644 </code></pre>
+</div>
+</div>
+<p>Ponemos el rango entre [0,2] (pixeles positivos)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>x_train <span class="ot">&lt;-</span> digitos_entrena <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">contains</span>(<span class="st">'pixel'</span>)) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>() <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>x_train <span class="ot">&lt;-</span> x_train</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>x_test <span class="ot">&lt;-</span> digitos_prueba <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="fu">contains</span>(<span class="st">'pixel'</span>)) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>() <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>x_test <span class="ot">&lt;-</span> x_test</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Usamos codificación dummy:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co">#dim(x_train) &lt;- c(nrow(x_train), 16, 16, 1)</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="co">#dim(x_test) &lt;- c(nrow(x_test), 16, 16, 1)</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>y_train <span class="ot">&lt;-</span> <span class="fu">to_categorical</span>(digitos_entrena<span class="sc">$</span>digito)</span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>y_test <span class="ot">&lt;-</span> <span class="fu">to_categorical</span>(digitos_prueba<span class="sc">$</span>digito)</span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(y_train)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
+[1,]    0    0    0    0    0    0    1    0    0     0
+[2,]    0    0    0    0    0    1    0    0    0     0
+[3,]    0    0    0    0    1    0    0    0    0     0
+[4,]    0    0    0    0    0    0    0    1    0     0
+[5,]    0    0    0    1    0    0    0    0    0     0
+[6,]    0    0    0    0    0    0    1    0    0     0</code></pre>
+</div>
+</div>
+<p>Y definimos un modelo con 2 capas de 200 unidades cada una y regularización L2. Nótese que usamos softmax en la última capa, que es la función (ver parte de regresión multinomial) cuya salida <span class="math inline">\(k\)</span> está dada por</p>
+<p><span class="math display">\[p_k = \frac{exp(z_k)}{\sum_j exp(z_j)}\]</span></p>
+<p>donde <span class="math inline">\(z=(z_1,\ldots, z_K)\)</span> (estas son las combinaciones lineales de las unidades de la capa anterior).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="ot">&lt;-</span> <span class="fu">keras_model_sequential</span>() </span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="sc">|&gt;</span> </span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">200</span>, <span class="at">activation =</span> <span class="st">'sigmoid'</span>, </span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="at">l =</span> <span class="fl">1e-6</span>), <span class="at">input_shape=</span><span class="dv">256</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">200</span>, <span class="at">activation =</span> <span class="st">'sigmoid'</span>,</span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="at">l =</span> <span class="fl">1e-6</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">10</span>, <span class="at">activation =</span> <span class="st">'softmax'</span>,</span>
+<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="at">l =</span> <span class="fl">1e-6</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="sc">|&gt;</span> <span class="fu">compile</span>(</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">loss =</span> <span class="st">'categorical_crossentropy'</span>,</span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="fu">optimizer_sgd</span>(<span class="at">learning_rate =</span> <span class="fl">0.5</span>, <span class="at">momentum =</span> <span class="fl">0.0</span>, <span class="at">decay =</span> <span class="fl">1e-6</span>),</span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">metrics =</span> <span class="fu">c</span>(<span class="st">'accuracy'</span> ,<span class="st">'categorical_crossentropy'</span>)</span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>history <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">fit</span>(</span>
+<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a>  x_train, y_train, </span>
+<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">epochs =</span> <span class="dv">100</span>, <span class="at">batch_size =</span> <span class="dv">256</span>, </span>
+<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>,</span>
+<span id="cb68-10"><a href="#cb68-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">validation_data =</span> <span class="fu">list</span>(x_test, y_test)</span>
+<span id="cb68-11"><a href="#cb68-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb68-12"><a href="#cb68-12" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">evaluate</span>(x_test, y_test)</span>
+<span id="cb68-13"><a href="#cb68-13" aria-hidden="true" tabindex="-1"></a>score</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    loss                 accuracy categorical_crossentropy 
+               0.2979129                0.9332337                0.2968644 </code></pre>
+</div>
+</div>
+<p>Podemos también intentar con el ejemplo de spam:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>spam_entrena <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">'../datos/spam-entrena.csv'</span>) </span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>spam_prueba <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">'../datos/spam-prueba.csv'</span>)</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">293</span>)</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>x_ent <span class="ot">&lt;-</span> spam_entrena <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>...<span class="dv">1</span>, <span class="sc">-</span>spam) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>x_ent_s <span class="ot">&lt;-</span> <span class="fu">scale</span>(x_ent)</span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a>x_valid <span class="ot">&lt;-</span> spam_prueba <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>...<span class="dv">1</span>, <span class="sc">-</span>spam) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>() </span>
+<span id="cb70-10"><a href="#cb70-10" aria-hidden="true" tabindex="-1"></a>x_valid_s <span class="ot">&lt;-</span> x_valid <span class="sc">|&gt;</span></span>
+<span id="cb70-11"><a href="#cb70-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale</span>(<span class="at">center =</span> <span class="fu">attr</span>(x_ent_s, <span class="st">'scaled:center'</span>), <span class="at">scale =</span> <span class="fu">attr</span>(x_ent_s,  <span class="st">'scaled:scale'</span>))</span>
+<span id="cb70-12"><a href="#cb70-12" aria-hidden="true" tabindex="-1"></a>y_ent <span class="ot">&lt;-</span> spam_entrena<span class="sc">$</span>spam</span>
+<span id="cb70-13"><a href="#cb70-13" aria-hidden="true" tabindex="-1"></a>y_valid <span class="ot">&lt;-</span> spam_prueba<span class="sc">$</span>spam</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>En este caso, intentemos una capa oculta:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="ot">&lt;-</span> <span class="fu">keras_model_sequential</span>() </span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="sc">|&gt;</span> </span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">200</span>, <span class="at">activation =</span> <span class="st">'sigmoid'</span>, </span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="at">l =</span> <span class="fl">1e-5</span>), <span class="at">input_shape=</span><span class="dv">57</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">1</span>, <span class="at">activation =</span> <span class="st">'sigmoid'</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="sc">|&gt;</span> <span class="fu">compile</span>(</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">loss =</span> <span class="st">'binary_crossentropy'</span>,</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="fu">optimizer_sgd</span>(<span class="at">learning_rate =</span> <span class="fl">0.5</span>, <span class="at">momentum =</span> <span class="fl">0.5</span>),</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">metrics =</span> <span class="fu">c</span>(<span class="st">'accuracy'</span>, <span class="st">'binary_crossentropy'</span>)</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>history <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">fit</span>(</span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>  x_ent_s, y_ent, </span>
+<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">epochs =</span> <span class="dv">200</span>, <span class="at">batch_size =</span> <span class="dv">256</span>, <span class="at">verbose =</span> <span class="dv">0</span>,</span>
+<span id="cb72-9"><a href="#cb72-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">validation_data =</span> <span class="fu">list</span>(x_valid_s, y_valid)</span>
+<span id="cb72-10"><a href="#cb72-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb72-11"><a href="#cb72-11" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">evaluate</span>(x_valid_s, y_valid)</span>
+<span id="cb72-12"><a href="#cb72-12" aria-hidden="true" tabindex="-1"></a>tab_confusion <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="fu">predict</span>(modelo_tc, x_valid_s) <span class="sc">&gt;</span> <span class="fl">0.4</span>, y_valid) </span>
+<span id="cb72-13"><a href="#cb72-13" aria-hidden="true" tabindex="-1"></a>tab_confusion</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       y_valid
+          0   1
+  FALSE 873  37
+  TRUE   54 570</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="activaciones-relu" class="level2" data-number="11.8">
+<h2 data-number="11.8" class="anchored" data-anchor-id="activaciones-relu"><span class="header-section-number">11.8</span> Activaciones relu</h2>
+<p>Recientemente se ha descubierto (en gran parte empíricamente) que hay una unidad más conveniente para las activaciones de las unidades, en lugar de la función sigmoide</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Activaciones lineales rectificadas (relu)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>La función relu es <span class="math display">\[\begin{equation}
+h(z) =
+\begin{cases}
+z &amp;\, z&gt;0\\
+0 &amp;\, z&lt;=0
+\end{cases}
+\end{equation}\]</span></p>
+<p>Estas generalmente sustituyen a las unidades sigmoidales en capas ocultas</p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>h_relu <span class="ot">&lt;-</span> <span class="cf">function</span>(z) <span class="fu">ifelse</span>(z <span class="sc">&gt;</span> <span class="dv">0</span>, z, <span class="dv">0</span>)</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>h_logistica <span class="ot">&lt;-</span> <span class="cf">function</span>(z) <span class="dv">4</span><span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span><span class="fu">exp</span>(<span class="sc">-</span>z)) <span class="co">#mult por 4 para comparar más fácilmente</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(h_relu, <span class="sc">-</span><span class="dv">5</span>,<span class="dv">5</span>)</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(h_logistica, <span class="at">add=</span>T, <span class="at">col=</span><span class="st">'red'</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-58-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>La razón del exito de estas activaciones no está del todo clara, aunque generalmente se cita el hecho de que una unidad saturada (valores de entrada muy positivos o muy negativos) es problemática en optimización, y las unidades tienen menos ese problema pues no se saturan para valores positivos.</p>
+<p><strong>Pregunta</strong>: ¿cómo cambiaría el algoritmo de feed-forward con estas unidades? ¿el de back-prop?</p>
+<section id="ejemplo-4" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="ejemplo-4">Ejemplo</h4>
+<p>Veamos el mismo modelo de dos capas de arriba, pero con activaciones relu:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="ot">&lt;-</span> <span class="fu">keras_model_sequential</span>() </span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="sc">|&gt;</span> </span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">200</span>, <span class="at">activation =</span> <span class="st">'relu'</span>, </span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="at">l =</span> <span class="fl">1e-3</span>), <span class="at">input_shape=</span><span class="dv">256</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a> <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">200</span>, <span class="at">activation =</span> <span class="st">'relu'</span>,</span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="at">l =</span> <span class="fl">1e-3</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">10</span>, <span class="at">activation =</span> <span class="st">'softmax'</span>,</span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="at">l =</span> <span class="fl">1e-3</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="sc">|&gt;</span> <span class="fu">compile</span>(</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">loss =</span> <span class="st">'categorical_crossentropy'</span>,</span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="fu">optimizer_sgd</span>(<span class="at">learning_rate =</span> <span class="fl">0.3</span>, <span class="at">momentum =</span> <span class="fl">0.0</span>, <span class="at">decay =</span> <span class="dv">0</span>),</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">metrics =</span> <span class="fu">c</span>(<span class="st">'accuracy'</span>, <span class="st">'categorical_crossentropy'</span>)</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>history <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">fit</span>(</span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a>  x_train, y_train, </span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">epochs =</span> <span class="dv">200</span>, <span class="at">batch_size =</span> <span class="dv">256</span>, </span>
+<span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="dv">0</span>,</span>
+<span id="cb76-10"><a href="#cb76-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">validation_data =</span> <span class="fu">list</span>(x_test, y_test)</span>
+<span id="cb76-11"><a href="#cb76-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb76-12"><a href="#cb76-12" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">evaluate</span>(x_test, y_test)</span>
+<span id="cb76-13"><a href="#cb76-13" aria-hidden="true" tabindex="-1"></a>score</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    loss                 accuracy categorical_crossentropy 
+               0.3070617                0.9407075                0.2198691 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="dropout-para-regularización" class="level2" data-number="11.9">
+<h2 data-number="11.9" class="anchored" data-anchor-id="dropout-para-regularización"><span class="header-section-number">11.9</span> Dropout para regularización</h2>
+<p>Un método más nuevo y exitoso para regularizar es el <em>dropout</em>. Consiste en perturbar la red en cada pasada de entrenamiento de minibatch (feed-forward y backprop), eliminando <em>al azar</em> algunas de las unidades de cada capa.</p>
+<p>El objeto es que al introducir ruido en el proceso de entrenamiento para evitar sobreajuste, pues en cada paso de la iteración estamos limitando el número de unidades que la red puede usar para ajustar las respuestas. Dropout entonces busca una reducción en el sobreajuste que sea más provechosa que el consecuente aumento en el sesgo.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Dropout
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>En cada iteración (minibatch), seleccionamos con cierta probablidad <span class="math inline">\(p\)</span> eliminar cada una de las unidades (independientemente en cada capa, y posiblemente con distintas <span class="math inline">\(p\)</span> en cada capa), es decir, hacemos su salida igual a 0. Hacemos forward-feed y back-propagation poniendo en 0 las unidades eliminadas.</li>
+<li>Escalar pesos: para predecir (prueba), usamos todas las unidades. Si una unidad tiene peso <span class="math inline">\(\theta\)</span> en una capa después de entrenar, y la probablidad de que esa capa no se haya hecho 0 es <span class="math inline">\(1-p\)</span>, entonces usamos <span class="math inline">\((1-p)\theta\)</span> como peso para hacer predicciones.</li>
+<li>Si hacemos dropout de la capa de entrada, generalmente se usan valores chicos alrededor de <span class="math inline">\(0.2\)</span>. En capas intermedias se usan generalmente valores más grandes alrededor de <span class="math inline">\(0.5\)</span>.</li>
+</ul>
+</div>
+</div>
+<p>Podemos hacer dropout de la capa de entrada. En este caso, estamos evitando que el modelo dependa fuertemente de variables individuales. Por ejemplo, en procesamiento de imágenes, no queremos que por sobreajuste algunas predicciones estén ligadas fuertemente a un solo pixel (aún cuando en entrenamiento puede ser que un pixel separe bien los casos que nos interesa clasificar).</p>
+<section id="ejemplo-dropout-y-regularización" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="ejemplo-dropout-y-regularización">Ejemplo: dropout y regularización</h4>
+<p>Consideremos el problema de separar 8 y 3 del resto de dígitos zip. Queremos comparar el desempeño de una red sin y con dropout (tanto de entradas como de capa oculta) y entender parcialmente cómo se comportan los pesos aprendidos:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">29123</span>)</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>entrena_3 <span class="ot">&lt;-</span> digitos_entrena <span class="sc">|&gt;</span> <span class="fu">sample_n</span>(<span class="fu">nrow</span>(digitos_entrena)) <span class="sc">|&gt;</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sample_n</span>(<span class="dv">3000</span>)</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>x_train_3 <span class="ot">&lt;-</span> entrena_3 <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span>digito) <span class="sc">|&gt;</span> <span class="fu">as.matrix</span>() <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>y_train_3 <span class="ot">&lt;-</span> (entrena_3<span class="sc">$</span>digito <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">8</span>)) <span class="sc">|&gt;</span> <span class="fu">as.numeric</span>()</span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12</span>)</span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a>modelo_sin_reg <span class="ot">&lt;-</span> <span class="fu">keras_model_sequential</span>() </span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>modelo_sin_reg  <span class="sc">|&gt;</span> </span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">30</span>, <span class="at">activation =</span> <span class="st">'relu'</span>, <span class="at">input_shape =</span> <span class="dv">256</span>) <span class="sc">|&gt;</span></span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">1</span>, <span class="at">activation =</span> <span class="st">'sigmoid'</span>)</span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">12</span>)</span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>modelo_dropout <span class="ot">&lt;-</span> <span class="fu">keras_model_sequential</span>() </span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a>modelo_dropout  <span class="sc">|&gt;</span> </span>
+<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_reshape</span>(<span class="at">input_shape=</span><span class="dv">256</span>, <span class="at">target_shape=</span><span class="dv">256</span>) <span class="sc">|&gt;</span></span>
+<span id="cb78-15"><a href="#cb78-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dropout</span>(<span class="fl">0.5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb78-16"><a href="#cb78-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">30</span>, <span class="at">activation =</span> <span class="st">'relu'</span>, <span class="at">input_shape =</span> <span class="dv">256</span>, <span class="at">name =</span> <span class="st">"dense_1"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb78-17"><a href="#cb78-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dropout</span>(<span class="fl">0.5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb78-18"><a href="#cb78-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">1</span>, <span class="at">activation =</span> <span class="st">'sigmoid'</span>, <span class="at">name=</span><span class="st">'output'</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>El modelo sin regularización sobreajusta (nótese que el error de validación comienza a crecer considerablemente muy pronto, hay un margen grande entre entrenamiento y validación, y la pérdida de entrenamiento es cercana a 0):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>modelo_sin_reg <span class="sc">|&gt;</span> <span class="fu">compile</span>(<span class="at">loss =</span> <span class="st">'binary_crossentropy'</span>, </span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="fu">optimizer_sgd</span>(<span class="at">lr =</span> <span class="fl">0.5</span>),</span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">metrics =</span> <span class="fu">c</span>(<span class="st">'accuracy'</span>)</span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in backcompat_fix_rename_lr_to_learning_rate(...): the `lr` argument has
+been renamed to `learning_rate`.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>history_1 <span class="ot">&lt;-</span> modelo_sin_reg <span class="sc">|&gt;</span> <span class="fu">fit</span>(x_train_3<span class="sc">/</span><span class="dv">2</span>, y_train_3, <span class="at">verbose=</span><span class="dv">0</span>,</span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">epochs =</span> <span class="dv">800</span>, <span class="at">batch_size =</span> <span class="dv">256</span>, <span class="at">validation_split =</span> <span class="fl">0.2</span></span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>hist_1 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(history_1)</span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(hist_1, <span class="fu">aes</span>(<span class="at">x=</span>epoch, <span class="at">y=</span>value, <span class="at">colour=</span>data)) <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb81-6"><a href="#cb81-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>metric, <span class="at">scales =</span> <span class="st">'free'</span>, <span class="at">ncol=</span><span class="dv">1</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-62-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>Y parecen ruidosas las unidades que aprendió en la capa oculta (algunas no aprendieron o aprendieron cosas irrelevantes). En la siguiente imagen, cada pixel es un peso. Cada imagen agrupa los pesos de una unidad, y ordenamos los pesos según la variable de entrada (pixel) al que se multiplican.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>graf_pesos <span class="ot">&lt;-</span> <span class="cf">function</span>(pesos, <span class="at">mostrar_facets=</span><span class="cn">FALSE</span>){</span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>  pesos_df <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(pesos) <span class="sc">|&gt;</span></span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">pixel =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">256</span>) <span class="sc">|&gt;</span></span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">x=</span>(pixel <span class="sc">-</span><span class="dv">1</span>) <span class="sc">%%</span> <span class="dv">16</span>, <span class="at">y =</span> (pixel<span class="dv">-1</span>) <span class="sc">%/%</span> <span class="dv">16</span>) <span class="sc">|&gt;</span></span>
+<span id="cb82-5"><a href="#cb82-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gather</span>(unidad, valor, <span class="sc">-</span>pixel,<span class="sc">-</span>x,<span class="sc">-</span>y) <span class="sc">|&gt;</span></span>
+<span id="cb82-6"><a href="#cb82-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">unidad =</span> <span class="fu">as.integer</span>(unidad)) <span class="sc">|&gt;</span></span>
+<span id="cb82-7"><a href="#cb82-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">x_grid =</span> (unidad<span class="dv">-1</span>) <span class="sc">%%</span> <span class="dv">6</span> <span class="sc">+</span> <span class="dv">1</span>, <span class="at">y_grid=</span> (unidad<span class="dv">-1</span>) <span class="sc">%/%</span> <span class="dv">6</span> <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb82-8"><a href="#cb82-8" aria-hidden="true" tabindex="-1"></a>  marco <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">x_grid =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>, <span class="at">y_grid=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
+<span id="cb82-9"><a href="#cb82-9" aria-hidden="true" tabindex="-1"></a>  pesos_df <span class="ot">&lt;-</span> <span class="fu">full_join</span>(marco, pesos_df, <span class="at">by=</span><span class="fu">c</span>(<span class="st">'x_grid'</span>,<span class="st">'y_grid'</span>))</span>
+<span id="cb82-10"><a href="#cb82-10" aria-hidden="true" tabindex="-1"></a>  pesos_df<span class="sc">$</span>valor[<span class="fu">is.na</span>(pesos_df<span class="sc">$</span>valor)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb82-11"><a href="#cb82-11" aria-hidden="true" tabindex="-1"></a>  gplot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pesos_df, <span class="fu">aes</span>(<span class="at">x=</span>x,<span class="at">y=</span><span class="sc">-</span>y, <span class="at">fill=</span>valor)) <span class="sc">+</span> <span class="fu">geom_tile</span>() <span class="sc">+</span></span>
+<span id="cb82-12"><a href="#cb82-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_grid</span>(x_grid<span class="sc">~</span>y_grid) <span class="sc">+</span> </span>
+<span id="cb82-13"><a href="#cb82-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_gradient2</span>(<span class="at">low =</span> <span class="st">"black"</span>, <span class="at">mid=</span><span class="st">'gray80'</span>,</span>
+<span id="cb82-14"><a href="#cb82-14" aria-hidden="true" tabindex="-1"></a>                         <span class="at">high =</span> <span class="st">"white"</span>) <span class="sc">+</span> </span>
+<span id="cb82-15"><a href="#cb82-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">coord_fixed</span>()</span>
+<span id="cb82-16"><a href="#cb82-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="sc">!</span>mostrar_facets){</span>
+<span id="cb82-17"><a href="#cb82-17" aria-hidden="true" tabindex="-1"></a>    gplot <span class="ot">&lt;-</span> gplot <span class="sc">+</span> </span>
+<span id="cb82-18"><a href="#cb82-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">strip.background =</span> <span class="fu">element_blank</span>(), <span class="at">strip.text =</span> <span class="fu">element_blank</span>())    </span>
+<span id="cb82-19"><a href="#cb82-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb82-20"><a href="#cb82-20" aria-hidden="true" tabindex="-1"></a>  gplot</span>
+<span id="cb82-21"><a href="#cb82-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb82-22"><a href="#cb82-22" aria-hidden="true" tabindex="-1"></a>pesos <span class="ot">&lt;-</span> <span class="fu">get_weights</span>(modelo_sin_reg)[[<span class="dv">1</span>]]</span>
+<span id="cb82-23"><a href="#cb82-23" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(pesos) <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(pesos)</span>
+<span id="cb82-24"><a href="#cb82-24" aria-hidden="true" tabindex="-1"></a><span class="fu">graf_pesos</span>(pesos)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-63-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>Ahora ajustamos el modelo con dropout:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>modelo_dropout <span class="sc">|&gt;</span> <span class="fu">compile</span>(<span class="at">loss =</span> <span class="st">'binary_crossentropy'</span>, </span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="fu">optimizer_sgd</span>(<span class="at">learning_rate =</span> <span class="fl">0.5</span>),</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">metrics =</span> <span class="fu">c</span>(<span class="st">'accuracy'</span>)</span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>history_2 <span class="ot">&lt;-</span> modelo_dropout <span class="sc">|&gt;</span> <span class="fu">fit</span>(x_train_3<span class="sc">/</span><span class="dv">2</span>, y_train_3, <span class="at">verbose =</span> <span class="dv">0</span>,</span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">epochs =</span> <span class="dv">800</span>, <span class="at">batch_size =</span> <span class="dv">256</span>, <span class="at">validation_split =</span> <span class="fl">0.2</span>,</span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">callbacks =</span> <span class="fu">callback_tensorboard</span>(<span class="st">"logs/digits/run_2"</span>, <span class="at">write_images=</span><span class="cn">TRUE</span>),</span>
+<span id="cb83-8"><a href="#cb83-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb83-9"><a href="#cb83-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-10"><a href="#cb83-10" aria-hidden="true" tabindex="-1"></a>hist_2 <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(history_2)</span>
+<span id="cb83-11"><a href="#cb83-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(hist_2, <span class="fu">aes</span>(<span class="at">x=</span>epoch, <span class="at">y=</span>value, <span class="at">colour=</span>data)) <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span> </span>
+<span id="cb83-12"><a href="#cb83-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>metric, <span class="at">scales =</span> <span class="st">'free'</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-64-1.png" class="img-fluid" width="480"></p>
+</div>
+</div>
+<p>El desempeño es mejor, y parecen ser más útiles los patrones que aprendió la capa oculta:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>pesos <span class="ot">&lt;-</span> <span class="fu">get_weights</span>(modelo_dropout)[[<span class="dv">1</span>]]</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(pesos) <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">ncol</span>(pesos)</span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a><span class="fu">graf_pesos</span>(pesos) </span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-65-1.png" class="img-fluid" width="480"></p>
+</div>
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_weights</span>(modelo_dropout)[[<span class="dv">3</span>]]</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            [,1]
+ [1,] -0.7558547
+ [2,]  0.4902170
+ [3,]  0.7409632
+ [4,] -1.4671373
+ [5,]  0.2902412
+ [6,] -1.4140806
+ [7,]  0.5604442
+ [8,]  0.7239541
+ [9,]  0.9784343
+[10,] -0.8288803
+[11,] -0.6791409
+[12,] -0.8196782
+[13,]  0.2162549
+[14,] -0.9660177
+[15,] -1.1058122
+[16,] -1.0683811
+[17,]  0.9740894
+[18,] -1.3882309
+[19,] -0.9358422
+[20,]  0.5976434
+[21,]  0.1453606
+[22,] -0.7691740
+[23,] -1.0051780
+[24,]  0.4785056
+[25,] -0.8803148
+[26,]  0.5955260
+[27,] -0.7486423
+[28,]  0.8691846
+[29,] -0.6730209
+[30,] -0.7201217</code></pre>
+</div>
+</div>
+<p>¿Cuáles de estas unidades tienen peso positivo y negativo en la capa final?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>pesos_capa_f <span class="ot">&lt;-</span> <span class="fu">get_weights</span>(modelo_dropout)[[<span class="dv">3</span>]]</span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>g_1_pos <span class="ot">&lt;-</span> <span class="fu">graf_pesos</span>(pesos[, pesos_capa_f <span class="sc">&gt;</span> <span class="dv">0</span>]) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Peso positivo"</span>)</span>
+<span id="cb87-4"><a href="#cb87-4" aria-hidden="true" tabindex="-1"></a>g_2_neg <span class="ot">&lt;-</span> <span class="fu">graf_pesos</span>(pesos[, pesos_capa_f <span class="sc">&lt;</span> <span class="dv">0</span>]) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">"Peso negativo"</span>)</span>
+<span id="cb87-5"><a href="#cb87-5" aria-hidden="true" tabindex="-1"></a>g_1_pos <span class="sc">+</span> g_2_neg</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-66-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+<p>Veamos cómo se activan distintas unidades con diferentes entradas:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>indices <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">28</span>, <span class="dv">3</span>, <span class="dv">16</span>)</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>entrena_3<span class="sc">$</span>digito[indices]</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9 3 0 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>dense_layer <span class="ot">&lt;-</span> <span class="fu">keras_model</span>(<span class="at">inputs =</span> modelo_dropout<span class="sc">$</span>input,</span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">outputs =</span> <span class="fu">get_layer</span>(modelo_dropout, <span class="st">'dense_1'</span>)<span class="sc">$</span>output)</span>
+<span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a>dense_output <span class="ot">&lt;-</span> <span class="fu">predict</span>(dense_layer, x_train_3[indices, , <span class="at">drop=</span><span class="cn">FALSE</span>])</span>
+<span id="cb90-4"><a href="#cb90-4" aria-hidden="true" tabindex="-1"></a>dense_t <span class="ot">&lt;-</span> <span class="fu">t</span>(dense_output)</span>
+<span id="cb90-5"><a href="#cb90-5" aria-hidden="true" tabindex="-1"></a>dense_t</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           [,1]     [,2]      [,3]      [,4]
+ [1,] 0.0000000 0.000000 1.5595670 0.0000000
+ [2,] 0.7429497 0.000000 0.7353314 0.0000000
+ [3,] 0.0000000 4.078984 0.0000000 0.0000000
+ [4,] 2.4823837 0.000000 0.0000000 0.0000000
+ [5,] 0.0000000 0.000000 0.0000000 0.0000000
+ [6,] 2.7821326 0.000000 0.0000000 0.0000000
+ [7,] 0.4618670 2.331589 0.0000000 0.0000000
+ [8,] 0.0000000 0.000000 0.0000000 1.1102359
+ [9,] 0.0000000 0.000000 0.0000000 0.0000000
+[10,] 0.0000000 0.000000 4.0879993 2.9297590
+[11,] 0.0000000 0.000000 3.2897351 0.0000000
+[12,] 0.0000000 0.000000 4.3260498 0.0000000
+[13,] 0.0000000 0.000000 0.0000000 0.0000000
+[14,] 0.0000000 0.000000 0.0000000 0.0000000
+[15,] 0.0000000 0.000000 0.0000000 0.0000000
+[16,] 0.0000000 0.000000 0.0000000 1.9319699
+[17,] 0.0000000 0.000000 0.0000000 0.0000000
+[18,] 2.2966871 0.000000 0.0000000 0.0000000
+[19,] 2.1112599 0.000000 0.0000000 0.0000000
+[20,] 0.0000000 2.699180 0.0000000 0.0000000
+[21,] 0.0000000 0.000000 0.0000000 0.0000000
+[22,] 0.0000000 0.000000 0.0000000 0.0000000
+[23,] 2.0674853 0.000000 2.1305070 0.0000000
+[24,] 0.8965921 2.015435 0.0000000 0.0000000
+[25,] 2.3437614 0.000000 0.0000000 0.0000000
+[26,] 0.8468671 0.000000 0.0000000 0.8635676
+[27,] 0.0000000 0.000000 3.6821470 1.0566226
+[28,] 0.0000000 0.000000 0.0000000 0.0000000
+[29,] 0.0000000 0.000000 1.8980310 0.0000000
+[30,] 0.0000000 0.000000 0.0000000 0.0000000</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>no_legend <span class="ot">&lt;-</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>g_1 <span class="ot">&lt;-</span> <span class="fu">graf_pesos</span>(pesos[, dense_t[ ,<span class="dv">1</span>] <span class="sc">&gt;</span> <span class="fl">0.5</span>], <span class="at">mostrar_facets =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> no_legend</span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>g_2 <span class="ot">&lt;-</span> <span class="fu">graf_pesos</span>(pesos[, dense_t[ ,<span class="dv">2</span>] <span class="sc">&gt;</span> <span class="fl">0.5</span>], <span class="at">mostrar_facets =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> no_legend</span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>g_3 <span class="ot">&lt;-</span> <span class="fu">graf_pesos</span>(pesos[, dense_t[ ,<span class="dv">3</span>] <span class="sc">&gt;</span> <span class="fl">0.5</span>], <span class="at">mostrar_facets =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> no_legend</span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>g_4 <span class="ot">&lt;-</span> <span class="fu">graf_pesos</span>(pesos[, dense_t[ ,<span class="dv">4</span>] <span class="sc">&gt;</span> <span class="fl">0.5</span>], <span class="at">mostrar_facets =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> no_legend</span>
+<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a>(g_1 <span class="sc">+</span> g_2) <span class="sc">/</span> (g_3 <span class="sc">+</span> g_4)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="11-redes-neuronales_files/figure-html/unnamed-chunk-68-1.png" class="img-fluid" width="768"></p>
+</div>
+</div>
+</section>
+<section id="comentarios-adicionales" class="level4 unnumbered">
+<h4 class="unnumbered anchored" data-anchor-id="comentarios-adicionales">Comentarios adicionales</h4>
+<p>Algunas maneras en que podemos pensar en la regularización de dropout:</p>
+<ul>
+<li><p>Dropout busca que cada unidad calcule algo importante por sí sola, y dependa menos de otras unidades para hacer algo útil. Algunas unidades y pesos pueden acoplarse fuertemente (y de manera compleja) para hacer las predicciones. Si estas unidades aprendieron ese acoplamento demasiado fuerte para el conjunto de entrenamiento, entonces puede ser nuevos datos, con perturbaciones, puedan producir predicciones malas (mala generalización). Con dropout buscamos que la unidades capturen información útil en general, no necesariamente en acoplamiento fuerte con otras unidades.</p></li>
+<li><p>Podemos pensar que en cada pasada de minibatch, escogemos una arquitectura diferente, y entrenamos. El resultado final será entonces es un tipo de promedio de todas esas arquitecturas que probamos. Este promedio reduce varianza de las salidas de las unidades.</p></li>
+<li><p>El paso de escalamiento es importante para el funcionamiento correcto del método. La idea intuitiva es que el peso de una unidad es 0 con probabilidad <span class="math inline">\(p\)</span> y <span class="math inline">\(\theta\)</span> con probabilidad <span class="math inline">\(1-p\)</span>. Tomamos el valor esperado como peso para la red completa, que es <span class="math inline">\(p0+(1-p)\theta\)</span>. Ver <span class="citation" data-cites="Srivastava:2014:DSW:2627435.2670313">(<a href="99-referencias.html#ref-Srivastava:2014:DSW:2627435.2670313" role="doc-biblioref">Srivastava et&nbsp;al. 2014</a>)</span></p></li>
+</ul>
+</section>
+<section id="ejemplo-5" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ejemplo-5">Ejemplo</h3>
+<p>Experimenta en este ejemplo con distintos valores de dropout, y verifica intuitivamente sus efectos de regularización (ve las curvas de aprendizaje).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="ot">&lt;-</span> <span class="fu">keras_model_sequential</span>() </span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="sc">|&gt;</span> </span>
+<span id="cb93-3"><a href="#cb93-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_reshape</span>(<span class="at">input_shape=</span><span class="dv">256</span>, <span class="at">target_shape=</span><span class="dv">256</span>) <span class="sc">|&gt;</span></span>
+<span id="cb93-4"><a href="#cb93-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dropout</span>(<span class="at">rate=</span><span class="fl">0.2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb93-5"><a href="#cb93-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">200</span>, <span class="at">activation =</span> <span class="st">'relu'</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb93-6"><a href="#cb93-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dropout</span>(<span class="at">rate =</span> <span class="fl">0.5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb93-7"><a href="#cb93-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">200</span>, <span class="at">activation =</span> <span class="st">'relu'</span>) <span class="sc">|&gt;</span></span>
+<span id="cb93-8"><a href="#cb93-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dropout</span>(<span class="at">rate =</span> <span class="fl">0.5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb93-9"><a href="#cb93-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">layer_dense</span>(<span class="at">units =</span> <span class="dv">10</span>, <span class="at">activation =</span> <span class="st">'softmax'</span>,</span>
+<span id="cb93-10"><a href="#cb93-10" aria-hidden="true" tabindex="-1"></a>              <span class="at">kernel_regularizer =</span> <span class="fu">regularizer_l2</span>(<span class="at">l =</span> <span class="fl">1e-4</span>))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>modelo_tc <span class="sc">|&gt;</span> <span class="fu">compile</span>(</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">loss =</span> <span class="st">'categorical_crossentropy'</span>,</span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">optimizer =</span> <span class="fu">optimizer_sgd</span>(<span class="at">learning_rate =</span> <span class="fl">0.3</span>, </span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">momentum =</span> <span class="fl">0.5</span>, <span class="at">decay =</span> <span class="fl">0.0001</span>),</span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">metrics =</span> <span class="fu">c</span>(<span class="st">'accuracy'</span>, <span class="st">'categorical_crossentropy'</span>)</span>
+<span id="cb94-6"><a href="#cb94-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb94-7"><a href="#cb94-7" aria-hidden="true" tabindex="-1"></a>history <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">fit</span>(</span>
+<span id="cb94-8"><a href="#cb94-8" aria-hidden="true" tabindex="-1"></a>  x_train, y_train, </span>
+<span id="cb94-9"><a href="#cb94-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">epochs =</span> <span class="dv">100</span>, <span class="at">batch_size =</span> <span class="dv">256</span>, </span>
+<span id="cb94-10"><a href="#cb94-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">validation_data =</span> <span class="fu">list</span>(x_test, y_test)</span>
+<span id="cb94-11"><a href="#cb94-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb94-12"><a href="#cb94-12" aria-hidden="true" tabindex="-1"></a>score <span class="ot">&lt;-</span> modelo_tc <span class="sc">|&gt;</span> <span class="fu">evaluate</span>(x_test, y_test)</span>
+<span id="cb94-13"><a href="#cb94-13" aria-hidden="true" tabindex="-1"></a>score</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    loss                 accuracy categorical_crossentropy 
+               0.2315200                0.9501744                0.2272787 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="datos-aumentados" class="level2" data-number="11.10">
+<h2 data-number="11.10" class="anchored" data-anchor-id="datos-aumentados"><span class="header-section-number">11.10</span> Datos aumentados</h2>
+<p>Otra manera de regularizar es creando conjuntos de datos más grandes y con más variación de maneras sintéticas y aleatorizadas consistentes con el proceso generador de datos. Por ejemplo:</p>
+<ul>
+<li>En imágenes, podemos hacer incrementar o decrementar el tamaño de la imagen por algun factor aleatorio: los objetos deben seguir siendo reconocibles.</li>
+<li>En algunos casos, hacer algunas rotaciones aleatorias es una buena idea, pues la imágenes que queremos procesar típicamente no están hechas a un ángulo o perspectiva fijo.</li>
+<li>Es posible hacer <em>shearing</em> u otras transformaciones que alteran las proporciones de las imágenes de manera consistente con el proceso generador.</li>
+<li>En imágenes naturales, muchas veces tiene sentido también reflejar la imagen horizontalmente (cambiar izquierda y derecha con una reflexión).</li>
+<li>Es posible también incluir ruido pixel a pixel.</li>
+</ul>
+<p>En todos estos casos, entrenamos con un conjunto artificial más grande y variado de imágenes, lo cual puede ayudar en evitar sobreajuste. Veremos ejemplos de esto en la siguiente sección.</p>
+<p>Para otro tipo de datos, las transformaciónes deberán ser diferentes. Por ejemplo con sonidos podemos alterar la aleatoriamente amplitud, velocidad e inyectar ruido de distintos tipos. Para tipos de datos tabulares este proceso puede ser más difícil de llevar a cabo, pues identificar transformaciones consistentes con el proceso generador de datos puede no ser tan simple.</p>
+<p>Todas estas transformaciones también tienen hiperparámetros con los que podemos experimentar para mejorar desempeño.</p>
+</section>
+<section id="ajuste-de-hiperparámetros" class="level2" data-number="11.11">
+<h2 data-number="11.11" class="anchored" data-anchor-id="ajuste-de-hiperparámetros"><span class="header-section-number">11.11</span> Ajuste de hiperparámetros</h2>
+<p>Esta sección es un extracto de <span class="citation" data-cites="goodfellow2016">(<a href="99-referencias.html#ref-goodfellow2016" role="doc-biblioref">Goodfellow, Bengio, y Courville 2016</a>)</span>, donde puedes encontrar más detalles.</p>
+<p>Dos enfoques: Manual (entender teoría, experiencia) o automático (computo).</p>
+<section id="ajuste-manual-de-hiperparámetros" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ajuste-manual-de-hiperparámetros">Ajuste Manual de Hiperparámetros</h3>
+<ul>
+<li>Ajustar la flexibilidad del modelo al problema: debe tener el sesgo apropiado (capacidad de representar patrones), ajustando con regularización de costo y proceso de entrenamiento.</li>
+</ul>
+<p>Por ejemplo: más capas tiene más poder de representación (menos sesgo), pero el algoritmo de minimización puede tener dificultades por varianza o por dificultades en minimización, o si la regularización es demasiado grande.</p>
+<ul>
+<li><p>Forma de U del error según capacidad del modelo: en un extremo, baja capacidad (sesgo alto). En otro extremo, hay alta capacidad y brecha grande entre error de entrenamiento y de prueba.</p></li>
+<li><p>La tasa de aprendizaje es el hiperparámetro más importante. Si es demasiado alta, entonces puede aumentar el error de entrenamiento. Cuando es muy baja, el proceso es lento y se puede atorar.</p></li>
+<li><p>Si el error en entrenamiento es más alto que tu tasa objetivo (el error que quisieras lograr), hay que bajar sesgo (con parámetros o arquitectura)</p></li>
+<li><p>Si el error de prueba es más grande que el de entrenamiento, hay dos acciones: prueba = entrena + gap. Hay que hacer tradeoff entre estas dos. En deep learning, generalmente funciona mejor cuando el error de entrenamiento es muy chico, y hay que reducir el gap regularizando: conviene comenzar con una red sobreajustada que tenga error de entrenamiento bajo, y regularizar y controlar complejidad a partir de esta.</p></li>
+</ul>
+</section>
+<section id="ajuste-automático" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="ajuste-automático">Ajuste automático</h3>
+<ul>
+<li><p>Grid search cuando hay pocos: todas las combinaciones de parámetros. Prohibitivo si hay demasiados.</p></li>
+<li><p>Random search es más rápido. Definir distribuciones para los hiperparámetros. Puedes correr repetidamente con distintos rangos. Es eficiente porque no gasta corridas (por ejemplo, cuando un parámetro no tiene mucho efecto).</p></li>
+</ul>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography" style="display: none">
+<div id="ref-goodfellow2016" class="csl-entry" role="doc-biblioentry">
+Goodfellow, Ian, Yoshua Bengio, y Aaron Courville. 2016. <em>Deep Learning</em>. MIT Press.
+</div>
+<div id="ref-Srivastava:2014:DSW:2627435.2670313" class="csl-entry" role="doc-biblioentry">
+Srivastava, Nitish, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, y Ruslan Salakhutdinov. 2014. <span>«Dropout: A Simple Way to Prevent Neural Networks from Overfitting»</span>. <em>J. Mach. Learn. Res.</em> 15 (1): 1929-58. <a href="http://dl.acm.org/citation.cfm?id=2627435.2670313">http://dl.acm.org/citation.cfm?id=2627435.2670313</a>.
+</div>
+</div>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiada");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./10-val-cruzada.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Entrenamiento, Validación y Prueba</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./99-referencias.html" class="pagination-link">
+        <span class="nav-page-text">Referencias</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>
