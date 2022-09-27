@@ -720,15 +720,23 @@ Propiedades de entrenamiento-validación-prueba
 <h2 data-number="10.4" class="anchored" data-anchor-id="validación-cruzada-repetida"><span class="header-section-number">10.4</span> Validación cruzada repetida</h2>
 <p>Con el objeto de reducir la varianza de las estimaciones por validación cruzada, podemos repetir varias veces usando distintas particiones seleccionadas al azar.</p>
 <p>Por ejemplo, podemos repetir 5 veces validación cruzada con 10 vueltas, y ajustamos un total de 50 modelos. Esto no es lo mismo que validación cruzada con 50 vueltas. Hay razones para no subdividir tanto la muestra de entrenamiento:</p>
-::: {.cell type=‘resumen’}
-<div class="resumen">
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Número de vueltas de validación cruzada
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <ul>
 <li>Aunque esquemas de validación cruzada-<span class="math inline">\(k\)</span> con <span class="math inline">\(k\)</span> grande pueden ser factibles, estos no se favorecen por la cantidad de cómputo necesaria y porque presentan sesgo hacia modelos más complejos <span class="citation" data-cites="shao">(<a href="99-referencias.html#ref-shao" role="doc-biblioref">Shao 1993</a>)</span>.</li>
 <li>En el extremo, podemos hacer validación <em>leave-one-out</em> (LOOCV), pero</li>
-<li>En estudios de simulación se desempeñan mejor métodos con <span class="math inline">\(k=5, 10, 20\)</span>, y cuando es posible, es mejor usar repeticiones
-</li></ul></div>
-:::
-
+<li>En estudios de simulación se desempeñan mejor métodos con <span class="math inline">\(k=5, 10, 20\)</span>, y cuando es posible, es mejor usar repeticiones</li>
+</ul>
+</div>
+</div>
 <p>En nuestro ejemplo de grasa corporal:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">883</span>)</span>
@@ -812,7 +820,7 @@ Propiedades de entrenamiento-validación-prueba
 <span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">c</span>(mejor<span class="sc">$</span>penalty, mejor_1ee<span class="sc">$</span>penalty), <span class="at">colour =</span> <span class="st">"blue"</span>)</span>
 <span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>g_1</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="10-val-cruzada_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="576"></p>
+<p><img src="10-val-cruzada_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="576"></p>
 </div>
 </div>
 
