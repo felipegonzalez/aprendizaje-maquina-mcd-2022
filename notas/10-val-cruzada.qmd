@@ -461,14 +461,17 @@ Por ejemplo, podemos repetir 5 veces validación cruzada con 10 vueltas, y
 ajustamos un total de 50 modelos. Esto no es lo mismo que validación cruzada con
 50 vueltas. Hay razones para no subdividir tanto la muestra de entrenamiento:
 
-```{block2, type="resumen"}
+::: callout-note
+# Número de vueltas de validación cruzada
+
 - Aunque esquemas de validación cruzada-$k$ con $k$ grande pueden ser factibles,
 estos no se favorecen por la cantidad de cómputo necesaria y porque presentan
 sesgo hacia modelos más complejos [@shao].
 - En el extremo, podemos hacer validación *leave-one-out* (LOOCV), pero 
 - En estudios de simulación se desempeñan mejor métodos con $k=5, 10, 20$, y
 cuando es posible, es mejor usar repeticiones
-```
+
+:::
 
 
 
