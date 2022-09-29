@@ -1,0 +1,166 @@
+---
+title: "Tarea 7"
+format: html
+---
+
+En esta tarea regresamos al ejemplo de predecir quién compra
+seguros para campers o casas móviles (*caravan*).
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+```
+
+### Lectura, partición y exploración de datos
+
+Queremos predecir la variable *Purchase*, que indica si el cliente compró o no
+el seguro de camper. La separación la hacemos de forma que tengamos misma
+proporción de compras en cada conjunto:
+
+```{r, message = FALSE}
+caravan <- read_csv("./datos/caravan.csv", show_col_types = FALSE) |> 
+  mutate(MOSTYPE = factor(MOSTYPE),
+         MOSHOOFD = factor(MOSHOOFD))
+set.seed(823)
+# usamos muestreo estratificado para tener el mismo balance
+# de Purchase en entrenamiento y prueba
+caravan_split = initial_split(caravan, strata = Purchase, prop = 0.7)
+caravan_split
+caravan_ent <- training(caravan_split)
+```
+
+Y vemos el desbalance de clases:
+
+```{r}
+nrow(caravan_ent)
+caravan_ent |> count(Purchase) |> 
+  mutate(pct = 100 * n / sum(n)) |> 
+  mutate(pct = round(pct, 2))
+```
+
+
+
+### Regresión logística regularizada y vecinos más cercanos
+
+Usaremos regresión logística regularizada y vecinos más cercanos. 
+**Puedes revisar la tarea para ver cómo 
+escogimos los parámetros penalty y mixture**.
+
+```{r}
+# preparacion de datos
+caravan_receta <- recipe(Purchase ~ . , caravan_ent) |>
+  step_dummy(all_nominal(), -Purchase) |>
+  step_relevel(Purchase,  ref_level = "Yes", skip = TRUE) 
+caravan_receta_norm <- caravan_receta |> 
+  step_normalize(all_numeric_predictors())
+# modelos
+modelo_logistico <- 
+  logistic_reg(mixture = 0.5, penalty = 0.01) |> 
+  set_args(lambda.min_ratio = 0) |> 
+  set_engine("glmnet") |> 
+  set_mode("classification")
+modelo_kvmc <- nearest_neighbor(neighbors = 20) |> 
+  set_mode("classification")
+```
+
+Con workflowsets podemos ajustar distintas combinaciones de preprocesamiento
+y distintos modelos. En este caso solo probamos dos combinaciones
+
+```{r}
+conjunto_flujos <- workflow_set(
+  preproc = list(receta_base = caravan_receta, 
+                 receta_norm = caravan_receta_norm),
+  models = list(reg_logistica = modelo_logistico, k_vecinos = modelo_kvmc),
+  cross = FALSE
+)
+```
+
+
+Haremos evaluaciones con validación cruzada para seleccionar nuestro modelo:
+
+```{r}
+#val_split <- manual_rset(caravan_split |> list(), "validación")
+particion_vc <- vfold_cv(caravan_ent, v = 10)
+mis_metricas <- metric_set(mn_log_loss, accuracy, roc_auc)
+resultados <- conjunto_flujos |> 
+  workflow_map("fit_resamples", 
+               resamples = particion_vc, 
+               metrics = mis_metricas)
+resultados |> collect_metrics()
+```
+
+**Pregunta 1**: ¿Cuál modelo creees que es mejor con esta información? ¿Por qué no
+es muy informativo el *accuracy* (porcentaje de clasificación correcta)? Explica cómo
+se calcula cada una de las cantidades de la tabla de arriba, y por qué producir esta
+tabla no es tan rápido como ajustar un solo modelo.
+
+
+### Curvas ROC
+
+Ahora construimos curvas ROC de prueba para hacer una comparación final de los
+modelos posibles:
+
+```{r}
+caravan_prueba <- testing(caravan_split)
+ajuste_1 <- extract_workflow(resultados, "receta_base_reg_logistica") |> 
+  fit(caravan_ent)
+preds_logistica <- predict(ajuste_1, caravan_prueba, type = "prob")
+ajuste_2 <- extract_workflow(resultados, "receta_norm_k_vecinos") |> 
+  fit(caravan_ent)
+preds_logistica <- predict(ajuste_1, caravan_prueba, type = "prob") |> 
+  mutate(modelo = "reg_logistica") |> bind_cols(caravan_prueba |> select(Purchase))
+preds_kvmc <- predict(ajuste_2, caravan_prueba, type = "prob") |> 
+  mutate(modelo = "kvmc") |> bind_cols(caravan_prueba |> select(Purchase))
+preds_modelos <- bind_rows(preds_logistica, preds_kvmc)
+```
+
+```{r}
+roc_graf <- roc_curve(preds_modelos |> group_by(modelo), 
+  truth = factor(Purchase), .pred_Yes, event_level = "second")
+autoplot(roc_graf)
+```
+
+**Pregunta 2**: En esta gráfica, cómo se definen sensibilidad y especificidad?
+
+**Pregunta 3**: qué tan diferentes son estos modelos en desempeño en sensibilidad
+y especificidad? Por ejemplo, si buscas sensibilidad de 75%, qué valor de especificidad
+puedes alcanzar con cada uno de ellos? ¿Qué método de predicción es mejor?
+
+**Pregunta 4**: Calcula la medida AUC de prueba para los dos modelos. (Área bajo la curva ROC).
+
+**Pregunta 5** Si quiere alcanzar sensibilidad o recall de 75% con el modelo
+de regresión logística, ¿dónde debes poner el punto de corte de probabilidad para
+clasificar como "comprador"?
+
+### Calibración de probabilidades
+
+Ahora checamos la calibración de probabilidades para el modelo de regresión logística. Esto es si quisiéramos usar las probabilidades individuales
+para tomar alguna decisión o calcular alguna cantidad derivada (por ejemplo en
+el análisis costo beneficio que vimos en clase).
+
+```{r}
+dat_calibracion <- preds_logistica |> 
+  mutate(grupo_pred = cut_number(.pred_Yes, n = 12)) |> 
+  group_by(grupo_pred) |> 
+  summarise(prop_obs = mean(Purchase == "Yes"), 
+            proba_pred = mean(.pred_Yes),
+            n = n()) |> 
+  mutate(ee = sqrt(prop_obs*(1 - prop_obs)/n))
+dat_calibracion
+```
+
+
+```{r}
+ggplot(dat_calibracion, aes(x = proba_pred, y = prop_obs, 
+    ymax = prop_obs + 2 * ee, ymin = prop_obs - 2 * ee)) +
+  geom_linerange() + geom_point(colour = "red") +
+  geom_abline() + coord_equal() + 
+  geom_rug(data = preds_logistica, aes(x = .pred_Yes), inherit.aes = FALSE)
+```
+
+**Pregunta 6**:  discute la gráfica de calibración que produjiste. ¿Qué tan bien
+reflejan las predicciones la probabilidad de ocurrencia del evento de compra (Purchase)?
+
+**Pregunta 7**: (más difícil, opcional) considera los anchos de las cubetas de probablidades que construimos
+en la gráfica de arriba. ¿Que defecto tienen las cubetas de probabilidades más altas en la construcción
+de la gráfica de calibración?
