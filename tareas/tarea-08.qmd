@@ -1,0 +1,99 @@
+---
+title: "Tarea 8 - redes neuronales simples y regularización"
+format: html
+---
+
+```{r}
+library(tidyverse)
+```
+
+En este ejercicio intentaremos ajustar con una red neuronal un patrón más
+complejo para $p(x)$, la probabilidad de observar 1. 
+
+
+```{r}
+h <- function(x){
+    exp(x)/(1 + exp(x))
+}
+# Probabilidades reales
+x <- seq(-2,2,0.05)
+p <- h(3 + x- 3 * x ^ 2 + 3 * cos(4 * x))
+dat_p <- tibble(x, p)
+# Simulador de datos para este modelo:
+set.seed(280572)
+generar_datos <- function(n = 400){
+  x_2 <- runif(400, -2, 2)
+  y_2 <- rbinom(400, 1, h(3 + x_2 - 3 * x_2 ^ 2 + 3 * cos(4 * x_2)))
+  datos <- tibble(x = x_2, y = y_2)
+  datos
+}
+datos <- generar_datos(n = 400)
+g <- qplot(x, p, geom = "line", col ="red")
+g + geom_jitter(data = datos, aes(x = x, y = y), col = "black",
+  position = position_jitter(height = 0.05), alpha = 0.4)
+```
+
+
+Prueba usando el siguiente código, y incrementa el número de unidades intermedias 
+(*num_unidades*)
+y la regularización que usamos (además del learning_rate del optimizador):
+
+```{r, message = FALSE}
+library(keras)
+num_unidades <- 2
+lambda_reg <- 0.00001
+lr <- 3.0
+# construir modelo
+ejemplo_mod <- keras_model_sequential()
+ejemplo_mod |> 
+   layer_dense(units = num_unidades, 
+    activation = "sigmoid", kernel_regularizer = regularizer_l2(lambda_reg)) |> 
+  layer_dense(units = 1, 
+    activation = "sigmoid", kernel_regularizer = regularizer_l2(lambda_reg))
+```
+
+```{r}
+x_mat <- as.matrix(datos$x, ncol = 1)
+y <- datos$y
+# usamos devianza como medida de error y descenso en gradiente:
+ejemplo_mod |> compile(loss = "binary_crossentropy", 
+  optimizer = optimizer_sgd(learning_rate = lr))
+# nota: esta learning rate (lr) es demasiado alta para problemas típicos
+historia <- ejemplo_mod |> 
+  fit(x_mat, y, 
+      batch_size = nrow(x_mat), epochs = 5000, verbose = 0)
+```
+
+
+Checa la convergencia del optimizador con la siguiente gráfica:
+
+**Pregunta 1**: ¿cómo afecta el learning_rate a la convergencia del optimizador?
+
+
+```{r}
+plot(historia, smooth = FALSE)
+```
+
+
+
+
+Verifica tus resultados con el siguiente código
+
+
+**Pregunta 2**: ¿qué significa que las dos curvas de esta gráfica estén muy cercanas?
+
+```{r}
+p_3 <- predict(ejemplo_mod, as.matrix(x, ncol = 1))
+dat_3 <- tibble(x = x, p_2 = p_3)
+ggplot(dat_3, aes(x = x, y = p_2)) + geom_line()+
+geom_line(data = dat_p, aes(x = x, y = p), col='red') +ylim(c(0,1))+
+   geom_point(data = datos, aes(x = x, y = y))
+```
+
+
+*Pregunta 3*: con cuántas unidades y regularización obtuviste mejores resultados? 
+
+*Pregunta 4* ¿Obtienes resultados similares con otra muestra aleatoria?
+
+*Pregunta 5* Qué crees que pase si el tamaño de entrenamiento es mucho más
+chico (por ejemplo 100 observaciones)? ¿Si es más grande (por ejemplo 1500 observaciones)?
