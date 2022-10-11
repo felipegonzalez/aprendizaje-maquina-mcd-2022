@@ -17,6 +17,7 @@ book:
     - 09-clasificacion-2.qmd
     - 10-val-cruzada.qmd
     - 11-redes-neuronales.qmd
+    - 13-arboles.qmd
     - 99-referencias.qmd
   appendices:
     - 81-apendice-descenso.qmd
