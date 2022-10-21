@@ -1,0 +1,298 @@
+---
+title: "Tarea 9: Descenso estocástico"
+format: html
+---
+
+El método usual para ajustar redes neuronales es descenso máximo (o descenso en 
+gradiente), en versión estocástica, y a veces utilizando minilotes. 
+
+La idea es la siguiente (ver también apéndices A y B) de las notas:
+
+- Tenemos un modelo $f_beta$ que queremos ajustar con parámetros $\beta$, y una función
+de pérdida para cada caso $L(y, f_beta(x))$. Supondremos la pérdida cuadrática
+$$(y - f_\beta (x))^2$$
+- Buscamos encontrar las $\beta$ que minimizan $\frac{1}{n}\sum_i L(y_i, f_\beta (x_i))$,
+la pérdida sobre el conjunto de entrenamiento.
+
+Una manera de hacer esto es usando descenso en gradiente. Haremos los cálculos 
+directamente en tensorflow (si quieres ver cómo calcular manualmente le gradiente,
+revisa en los apéndices de las notas).
+
+## Descenso en gradiente
+
+```{r}
+library(tensorflow)
+library(tidyverse)
+# para reprodubilidad
+set_random_seed(934, disable_gpu = TRUE)
+```
+
+```{r}
+# pesos o coeficientes, inicializados al azar
+beta <- tf$Variable(tf$random$normal(c(1L, 1L)), name = 'beta')
+# intercepto, inicializado en 0
+beta_0 <- tf$Variable(tf$zeros(1L, dtype = tf$float32), name = 'beta_0')
+# datos de entrenamiento
+x <- as_tensor(c(-2, -1, 0, 1, 2, 3), "float32", shape = c(6, 1))
+y  <- as_tensor(c(0.2, 0.4, 0.55, 0.3, 0.9, 1.10), "float32", shape = c(6, 1))
+plot(x,y)
+```
+
+
+
+```{r}
+# Gradient Tape "graba" las operaciones (multiplicación de matrices
+# adición, y agregación del error sobre todos los casos) para poder hacer
+# diferenciación automática:
+with(tf$GradientTape() %as% tape, {
+  pred <- tf$matmul(x, beta) + beta_0
+  perdida_cuad <- mean((y - pred) ^ 2)
+})
+# podemos calcular el gradiente actual con los datos de 
+#inicialización:
+grad <- tape$gradient(perdida_cuad, list(beta = beta, beta_0 = beta_0))
+grad$beta
+grad$beta_0
+```
+
+Ahora podemos iterar. Comenzando con la inicialización aleatoria, nos movemos
+en cada iteración en sentido contrario al gradiente calculado:
+
+
+```{r}
+tam_paso <- 0.01
+iteraciones <- map(1:200, function(i){
+  with(tf$GradientTape() %as% tape, {
+    pred <- tf$matmul(x, beta) + beta_0
+    perdida_cuad <- mean((y - pred) ^ 2)
+  })
+  # extraer gradiente calculado por diferenciación automática
+  grad <- tape$gradient(perdida_cuad, list(beta = beta, beta_0 = beta_0))
+  # actualizamos parámetros, restando el gradiente multiplicado
+  # por el tamaño de paso
+  beta$assign_sub(tam_paso * grad$beta)
+  beta_0$assign_sub(tam_paso * grad$beta_0)
+  c(beta_0 = as.numeric(beta_0), beta = as.numeric(beta), perdida = as.numeric(perdida_cuad))
+})
+```
+
+
+```{r}
+iter_tibble <- iteraciones |> bind_rows()
+ggplot(iter_tibble, aes(beta_0, beta)) + geom_point()
+plot(iter_tibble$perdida)
+```
+
+Podemos verificar usando lm:
+
+```{r}
+lm(as.numeric(y)~ as.matrix(x)) |> coef() 
+beta
+beta_0
+```
+
+**Pregunta 1**: intenta con un tamaño de paso mucho más chico (0.0001) o uno muy 
+grande (0.5). Puedes hacer las iteraciones individualmente para diagnosticar.
+
+## Descenso estocástico
+
+Inicializamos otra vez:
+
+```{r}
+# pesos o coeficientes, inicializados al azar
+beta <- tf$Variable(tf$random$normal(c(1L, 1L)), name = 'beta')
+# intercepto, inicializado en 0
+beta_0 <- tf$Variable(tf$zeros(1L, dtype = tf$float32), name = 'beta_0')
+# datos de entrenamiento
+```
+
+En este caso, en lugar de calcular el gradiente sobre todos los
+casos de entrenamiento (nota que la multiplicacion por la matriz x de datos
+por los coeficientes puede ser una operación costosa si x es grande), **ordenamos
+al azar los datos y los recorremos uno por uno, haciendo un paso de
+gradiente en cada caso**. Es decir, mejoramos los coeficientes para
+mejorar el error en cada caso de entrenamiento individualmente.
+
+Usualmente son necesarias hacer más iteraciones (más baratas) con 
+tamaño de paso más chico (no mover mucho los coeficientes por lo que
+diga un caso de entrenamiento):
+
+En nuestro ejemplo tenemos 6 casos, y los recorreremos seleccionando uno
+al azar en cada paso:
+
+```{r}
+tam_paso <- 0.002
+set.seed(812)
+iteraciones <- map(1:500, function(i){
+  indice <- sample(1:6, 1)
+  x_mb <- x[indice:indice, ]
+  y_mb <- y[indice:indice, ]
+  with(tf$GradientTape() %as% tape, {
+    pred <- tf$matmul(x_mb, beta) + beta_0
+    perdida_cuad <- mean((y_mb - pred) ^ 2)
+  })
+  # extraer gradiente for diferenciación automática
+  grad <- tape$gradient(perdida_cuad, list(beta = beta, beta_0 = beta_0))
+  # actualizamos parámetros
+  beta$assign_sub(tam_paso * grad$beta)
+  beta_0$assign_sub(tam_paso * grad$beta_0)
+  c(beta_0 = as.numeric(beta_0), beta = as.numeric(beta), perdida = as.numeric(perdida_cuad))
+})
+```
+
+
+```{r}
+iter_tibble <- iteraciones |> bind_rows()
+ggplot(iter_tibble, aes(beta_0, beta)) + geom_point() + geom_path()
+plot(iter_tibble$perdida)
+```
+
+**Pregunta 2**: ¿Este algoritmo parece llegar a un mínimo similar? 
+¿Por qué puede ser más eficiente usar descenso estocástico
+en lugar de descenso en gradiente usando todos los datos?
+
+En la práctica, en lugar de usar descenso estocástico se hace descenso estocástico
+por minilotes. Por ejemplo, si tenemos 2048 datos, los recorremos en grupos
+de 64 casos en lugar de caso por caso. Con esto se puede aprovechar
+la paralelización en la multiplicación de matrices.
+
+
+## Descenso estocástico en Keras
+
+El código de arriba es didáctico, no para usar en la práctica.
+Podríamos implementarlo mejor utilizando directamente
+los optimizadores de tensorflow, o más fácil aún, usando keras. En lugar
+de escoger en cada iteración un caso al azar, los ordenamos al azar incialmente,
+y cada época corresponde a una vuelta sobre todos los datos
+
+```{r}
+library(keras)
+modelo_lineal <- keras_model_sequential() |> 
+  layer_dense(1)
+# descenso estocástico: batch_size = 1,
+# con 50 epocas 
+modelo_lineal |>  compile(loss = 'mse',
+  optimizer = optimizer_sgd(learning_rate = 0.01))
+historia <- modelo_lineal |> 
+  fit(x, y, epochs = 50, batch_size = 1, 
+      verbose = 0, shuffle = TRUE)
+```
+```{r}
+get_weights(modelo_lineal)
+plot(historia)
+```
+
+
+## Regularización en descenso estocástico
+
+Usamos los datos anteriores,
+
+```{r}
+x <- as_tensor(c(-2, -1, 0, 1, 2, 3), "float32", shape = c(6, 1))
+y  <- as_tensor(c(0.2, 0.4, 0.55, 0.3, 0.9, 1.10), "float32", shape = c(6, 1))
+plot(x,y)
+```
+
+
+Consideramos primero un modelo muy chico, por ejemplo
+
+```{r}
+modelo <- keras_model_sequential() |> 
+  layer_dense(1, activation = "sigmoid", input_shape = 1,
+              kernel_initializer = initializer_random_uniform(-10, 10)) |> 
+  layer_dense(1, activation = "linear", 
+              kernel_initializer = initializer_random_uniform(-10, 10))
+# descenso estocástico: batch_size = 1,
+# con 50 epocas 
+modelo |>  compile(loss = "mse",
+  optimizer = optimizer_sgd(learning_rate = 0.1))
+modelo |> 
+  fit(x, y, epochs = 10000, batch_size = 6, 
+      verbose = 0, shuffle = TRUE)
+```
+
+Los resultados no son buenos:
+
+```{r}
+x_pred <- seq(-3, 4, 0.01) |> matrix(ncol = 1)
+preds_tbl <- tibble(x = x_pred[,1], preds = predict_on_batch(modelo, x_pred))
+ggplot(preds_tbl, aes(x = x, y = preds)) + geom_line() +
+  geom_point(data = tibble(x = as.numeric(x), preds = as.numeric(y)))
+```
+
+Usaremos una red con más parámetros que datos disponibles, pero no muy grande.
+
+```{r}
+modelo <- keras_model_sequential() |> 
+  layer_dense(5, activation = "sigmoid", input_shape = 1,
+              kernel_initializer = initializer_random_uniform(-10, 10)) |> 
+  layer_dense(5, activation = "sigmoid",
+              kernel_initializer = initializer_random_uniform(-10, 10)) |> 
+  layer_dense(1, activation = "linear", 
+              kernel_initializer = initializer_random_uniform(-10, 10))
+# descenso estocástico: batch_size = 1,
+# con 50 epocas 
+modelo |>  compile(loss = "mse",
+  optimizer = optimizer_sgd(learning_rate = 0.1))
+modelo |> 
+  fit(x, y, epochs = 10000, batch_size = 6, 
+      verbose = 0, shuffle = TRUE)
+```
+
+Con este modelo,  podemos interpolar los datos. Por ejemplo:
+
+```{r}
+x_pred <- seq(-3, 4, 0.01) |> matrix(ncol = 1)
+preds_tbl <- tibble(x = x_pred[,1], preds = predict_on_batch(modelo, x_pred))
+ggplot(preds_tbl, aes(x = x, y = preds)) + geom_line() +
+  geom_point(data = tibble(x = as.numeric(x), preds = as.numeric(y)))
+```
+
+El modelo tiene variaciones grandes que ocurren al forzar
+a un modelo de este tamaño a ajustar los datos: terminamos en un mínimo local
+malo.
+
+Podemos sin embargo usar un modelo más grande y obtener mejores resultados
+
+- Si inicializamos adecuadamente los coeficientes (más chicos)
+- Usamos descenso en gradiente o o descenso estocástico
+
+Por ejemplo:
+
+```{r}
+modelo <- keras_model_sequential() |> 
+  layer_dense(10, activation = "sigmoid", input_shape = 1,
+              kernel_initializer = initializer_random_uniform(-0.2, 0.2)) |> 
+  layer_dense(10, activation = "sigmoid",
+              kernel_initializer = initializer_random_uniform(-0.2, 0.2)) |> 
+  layer_dense(1, kernel_initializer = initializer_random_uniform(-0.2, 0.2), 
+              activation = "linear")
+# descenso en gradiente
+modelo |>  compile(loss = "mse",
+  optimizer = optimizer_sgd(learning_rate = 0.05))
+modelo |> 
+  fit(x, y, epochs = 10000, batch_size = 6, 
+      verbose = 0, shuffle = TRUE)
+```
+
+```{r}
+x_pred <- seq(-3, 4, 0.01) |> matrix(ncol = 1)
+preds_tbl <- tibble(x = x_pred[,1], preds = predict_on_batch(modelo, x_pred))
+ggplot(preds_tbl, aes(x = x, y = preds)) + geom_line() +
+  geom_point(data = tibble(x = as.numeric(x), preds = as.numeric(y)))
+```
+
+**Pregunta 3*: ¿Por qué crees que obtenemos mejores resultados, que aparentan
+tener más regularización en este segundo ejemplo comparado con el anterior?
+
+## Resumen
+
+- Es necesario un modelo que tenga capacidad suficiente (flexibilidad). Modelos
+que apenas pueden interpolar los datos pueden desempeñarse mal, modelos con baja 
+capacidad pueden tener sesgo alto.
+- Es necesario ajustar correctamente la inicialización y la tasa de aprendizaje
+para obtener buen desempeño.
+- Descenso estocástico por minilotes es más eficiente para datos grandes
+(digamos varios miles o más de datos de entrenamiento).
+- Observación adicional: hay variantes más efectivas y populares que descenso
+en gradiente estocástico simple (optimizadores rmsprop, adam).

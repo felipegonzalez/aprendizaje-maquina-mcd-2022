@@ -1,0 +1,112 @@
+---
+title: "Pregunta del examen sobre validación cruzada incorrecta"
+format: html
+---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(tidymodels)
+```
+
+
+Supongamos que tenemos una respuesta $y$ independiente de las entradas $x$, de forma
+las $x$  **no** pueden ayudarnos a hacer predicciones:
+
+```{r}
+set.seed(52127)
+n_col <- 1000
+x_todos <- rnorm(550 * n_col, 0, 1) |> matrix(550, n_col)
+colnames(x_todos) <- paste0("x", 1:n_col)
+# y es independiente de las x's:
+y_todos <- rbernoulli(550, p = 0.5)
+mean(y_todos)
+# tomamos solo 50 datos
+x <- x_todos[1:50, ]
+y <- y_todos[1:50]
+```
+
+Supongamos que queremos construir un modelo pero consideramos que tenemos 
+"demasiadas" variables de entrada. Decidimos entonces seleccionar solamente
+las 10 variables que más correlacionadas con $y$.  
+
+```{r}
+correlaciones <- cor(x, y) |> as.numeric()
+orden <- order(correlaciones, decreasing = TRUE)
+seleccionadas <- orden[1:10]
+correlaciones[seleccionadas] |> round(2)
+```
+
+## Manera incorrecta de hacer validación cruzada
+
+Una vez que seleccionamos las variables hacemos validación cruzada con
+un modelo lineal (nota: esto es un error!)
+
+```{r}
+set.seed(883)
+datos <- as_tibble(x[, seleccionadas]) |> 
+  mutate(y = factor(y))
+vc_particion <- vfold_cv(datos, v = 10)
+modelo_lineal <- logistic_reg(engine = "glmnet", penalty = 0.0001) 
+flujo_incorrecto <- workflow() |> add_model(modelo_lineal) |> add_formula(y ~ .)
+resultados <- fit_resamples(flujo_incorrecto, 
+      resamples = vc_particion, metrics = metric_set(accuracy, roc_auc)) |> 
+  collect_metrics()
+resultados
+```
+El modelo parece tener buen desempeño. Sin embargo, sabemos que esto no es posible
+pues la respuesta es independiente de todas las entradas. ¿Qué está mal?
+
+
+## Manera correcta de hacer validación cruzada
+
+
+```{r}
+#remotes::install_github("stevenpawley/recipeselectors")
+library(recipeselectors)
+# esta función es una modificación simple de step_select_roc
+source("R/step_select_corr.R")
+```
+
+Si incluimos la selección de variables en la receta, entonces en cada corte
+de validación cruzada seleccionamos las variables que tienen correlación más alta:
+
+```{r, warning = FALSE, message = FALSE}
+datos_completos <- as_tibble(x_todos) |> mutate(y = factor(y_todos)) 
+vc_particion_comp <- vfold_cv(datos_completos, v = 10)
+receta_x <- recipe(y ~ ., data = datos_completos) |> 
+  step_select_corr(all_predictors(), outcome = "y", top_p = 10)
+flujo_correcto <- workflow() |> 
+  add_recipe(receta_x) |> 
+  add_model(modelo_lineal) 
+resultados <- fit_resamples(flujo_correcto, 
+    resamples = vc_particion_comp, metrics = metric_set(accuracy, roc_auc)) |> 
+  collect_metrics()
+resultados
+```
+
+Vemos que el auc es cercano a 0.5 (equivalente a predecir al azar), y la tasa
+de correctos es cercana a 0.5 también. Esto es muy diferente al ejemplo donde
+hicimos incorrectamente la validación cruzada.
+
+## Con muestra de prueba
+
+Podemos verificar que el procedimento correcto es el segundo, probando el
+modelo que ajustamos inicialmente con una muestra de prueba. 
+
+```{r}
+# datos solo incluye reglones de 1 a 50
+ajuste_1 <- fit(flujo_incorrecto, datos)
+# probamos con el resto: de 51 a 550:
+predict(ajuste_1, datos_completos[ 51:550, ], type = "prob") |> 
+  mutate(y = factor(y_todos[51:550])) |> 
+  roc_auc(y, .pred_TRUE)
+```
+
+
+
+
+
+
+
+
