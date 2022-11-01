@@ -18,6 +18,7 @@ book:
     - 10-val-cruzada.qmd
     - 11-redes-neuronales.qmd
     - 13-arboles.qmd
+    - 14-arboles-boosting.qmd
     - 99-referencias.qmd
   appendices:
     - 81-apendice-descenso.qmd
