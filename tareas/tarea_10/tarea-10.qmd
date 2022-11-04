@@ -1,0 +1,231 @@
+---
+title: "Árboles y bosques aleatorios"
+format: html
+---
+
+## Datos
+
+Usamos los datos del concurso
+
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+hoteles_train <- read_csv("./datos/concurso/hoteles-entrena.csv")
+```
+
+
+Haremos una división manual de nuestra muestra de entrenamiento
+
+```{r}
+set.seed(889034)
+particion_hoteles <- validation_split(hoteles_train, prop = 0.70)
+entrena_tbl <- training(particion_hoteles$splits[[1]])
+particion_hoteles$splits[[1]]
+```
+
+## Árboles CART
+
+Comienza ajustando un árbol relativamente chico y una receta simple:
+
+```{r}
+receta_hoteles <- recipe(children ~ hotel + lead_time +
+              average_daily_rate + 
+              country + reserved_room_type + adults +
+              is_repeated_guest + stays_in_week_nights + 
+                stays_in_weekend_nights, entrena_tbl) |> 
+  step_other(country, threshold = 0.01) 
+```
+
+
+```{r}
+modelo_arbol <- decision_tree(cost_complexity = 0.02) |> 
+  set_mode("classification") |> 
+  set_args(model = TRUE)
+flujo_hoteles <- workflow() |> add_recipe(receta_hoteles) |> 
+  add_model(modelo_arbol)
+fit_resamples(flujo_hoteles, particion_hoteles, 
+              metrics = metric_set(roc_auc, mn_log_loss)) |> 
+  collect_metrics()
+```
+
+```{r}
+library(rpart.plot)
+flujo_ajustado <- fit(flujo_hoteles, entrena_tbl) 
+arbol <- flujo_ajustado |> extract_fit_engine()
+prp(arbol, type = 4, extra = 4)
+```
+
+**Pregunta 1**: Este árbol muy chico, ¿qué descubrimiento aporta acerca de
+los datos?
+
+Ahora intentamos un árbol más grande
+
+```{r}
+modelo_arbol <- decision_tree(cost_complexity = 0.005) |> 
+  set_mode("classification") |> 
+  set_args(model = TRUE)
+flujo_hoteles <- workflow() |> add_recipe(receta_hoteles) |> 
+  add_model(modelo_arbol)
+fit_resamples(flujo_hoteles, particion_hoteles, 
+              metrics = metric_set(roc_auc, mn_log_loss)) |> 
+  collect_metrics()
+```
+
+```{r}
+flujo_ajustado <- fit(flujo_hoteles, entrena_tbl) 
+arbol <- flujo_ajustado |> extract_fit_engine()
+prp(arbol, type = 4, extra = 4)
+```
+
+**Pregunta 2** Explica por qué el árbol anterior es el mismo que está en
+la raíz de este árbol más grande. ¿Mejoró el desempeño predictivo? ¿Cuáles son
+las variables que usa este modelo?
+
+
+**Pregunta 3**: Explica cómo son los cortes donde interviene la variable 
+*reserved_room_type*. 
+En particular, ¿por qué el último corte de la rama derecha con *reserved* 
+sólo incluye 4 categorías de tipo de cuarto?
+
+
+**Pregunta 4**: Examina los nodos donde se utiliza la variable *average_daily_rate*. Repite
+el árbol usando la receta que está abajo. ¿Cambia en algo la estructura del
+árbol al transformar usando el logaritmo?
+
+```{r}
+receta_hoteles_2 <- recipe(children ~  hotel + lead_time +
+              average_daily_rate + 
+              country + reserved_room_type + adults +
+              is_repeated_guest + stays_in_week_nights + 
+              stays_in_weekend_nights, entrena_tbl) |> 
+  step_other(country, threshold = 0.01) |> 
+  step_log(average_daily_rate, offset = 10)
+```
+
+
+
+
+## Bosques aleatorios
+
+Ahora usaremos bosques aleatorios para producir árboles con muestras bootstrap
+y selección aleatoria de variables en los nodos. Comenzamos con este código:
+
+```{r}
+modelo_bosque <- rand_forest(
+    mtry = 5, trees = 1000, min_n = 50) |> 
+  set_mode("classification") |> 
+  set_engine("ranger", importance = "permutation") |> 
+  set_args(respect.unordered.factors = "order")
+flujo_hoteles <- workflow() |> add_recipe(receta_hoteles) |> 
+  add_model(modelo_bosque)
+fit_resamples(flujo_hoteles, particion_hoteles, 
+              metrics = metric_set(roc_auc, mn_log_loss)) |> 
+  collect_metrics()
+```
+
+
+El argumento *respect.unordered.factors* controla
+cómo se tratan las variables categóricas. Una opción es *ignore*,
+que considera las variables categóricas como ordinales (en orden alfabético), y sólo hace cortes
+binarios que respetan ese orden.  La opción *order*, ordena la variable categórica por la proporción de *children* y hace cortes usando
+solo ese orden dado por la variable respuesta. Por ejemplo, para tipo de
+habitación, el orden es:
+
+```{r}
+prep(receta_hoteles, entrena_tbl) |> juice() |> 
+  group_by(reserved_room_type, children) |> 
+  count() |> 
+  group_by(reserved_room_type) |> 
+  mutate(prop = n / sum(n)) |> 
+  filter(children == "children") |> 
+  arrange(desc(prop)) 
+```
+
+
+**Pregunta 5**: compara este desempeño con los árboles de arriba.
+También compara qué pasa si usas la opción "ignore" en lugar de "order".
+
+
+Existe otra opción para el argumento *respect.unordered.factors*, que
+es *partition*, que considera, en cada corte, todas las posibles divisiones de las categorías en 2 grupos. Esta opción puede ser
+demasiado lenta cuando hay variables con muchas categorías y tenemos datos grandes, por ejemplo (recuerda que bosques aleatorios considera 
+árboles grandes).  Si lo intentas con estos datos puede ser que 
+tengas que reiniciar tu proyecto si lo trabas.
+
+
+**Pregunta 6**: explica por qué aunque fuera factible, por qué
+puede ser una mala idea hacer cortes arbitrarios con variables
+categóricas de cardinalidad alta.
+
+Otra opción además de usar "order" para cortar variables categóricas
+es reagrupar en preprocesamiento en menos categorías es crear variables
+dummy. Por ejemplo:
+
+
+```{r}
+receta_hoteles_dummy <- recipe(children ~ hotel + lead_time +
+              average_daily_rate + 
+              country + reserved_room_type + adults +
+              is_repeated_guest, entrena_tbl) |> 
+  step_other(country, threshold = 0.01) |>
+  step_dummy(country, reserved_room_type, one_hot = TRUE)
+```
+
+En este caso, puede ser que requieras más árboles y *mtry* más grande
+para obtener mejor desempeño.
+
+
+## Importancia de variables (opcional)
+
+Esta parte es opcional y la revisaremos en la próxima clase:
+
+
+```{r}
+library(vip)
+flujo_ajustado <- flujo_hoteles |> fit(entrena_tbl)
+modelo_ajustado <- flujo_ajustado |> extract_fit_engine()
+```
+Podemos ver la importancia en términos de pérdida de Brier/cuadrática (default
+del paquete ranger y se calcula durante el ajuste):
+
+```{r}
+vip(modelo_ajustado)
+```
+
+O podemos usar la muestra de validación para permutar y
+graficar los cambios en log pérdida (discutiremos más adelante):
+
+```{r}
+val_tbl <- testing(particion_hoteles$splits[[1]]) 
+pred_fn <-  function(object, newdata){ 
+  # object y newdata son argumentos de vip
+  preds_prob <- 
+    predict(object, new_data = newdata, type = "prob") |> 
+    pull(.pred_children)
+  # evitar probabilidades de 0 o 1:
+  preds_prob <- ifelse(preds_prob < 1e-6, 1e-6, preds_prob)
+  preds_prob <- ifelse(preds_prob > 1 - 1e-6, 1 - 1e-6, preds_prob)
+  preds_prob
+  } 
+importancia_scores <- vi(flujo_ajustado,
+    method = "permute", 
+    train = val_tbl, 
+    target = "children",
+    metric = "logloss",
+    smaller_is_better = TRUE,
+    reference_class = "children",
+    pred_wrapper = pred_fn, 
+    num_features = 15
+    )
+vip(importancia_scores, geom = "point", num_features = 15)
+```
+
+Nota: este último código también permuta variables que no fueron seleccionadas en la receta del modelo pero están en la tabla *val_tbl* (tienen importancia cero por definición). Puede reescribirse para que use modelo y datos procesados y
+así evitamos ese trabajo redundante.
+
+
+
+
+
+
