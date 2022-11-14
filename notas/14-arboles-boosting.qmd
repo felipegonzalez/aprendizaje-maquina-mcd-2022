@@ -8,16 +8,16 @@ theme_set(theme_minimal(base_size = 14))
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 ```
 
-Boosting también utiliza la idea de un "ensamble" de árboles. La diferencia
+Boosting también utiliza la idea de un "ensemble" de árboles. La diferencia
 grande con
  bagging y bosques aleatorios en que la sucesión de árboles de boosting se 
-'adapta' al comportamiento del predictor a lo largo de las iteraciones, 
+*adapta* al comportamiento del predictor a lo largo de las iteraciones, 
 haciendo reponderaciones de los datos de entrenamiento para que el algoritmo
-se concentre en las predicciones más pobres. Boosting generalmente funciona
+se concentre en las predicciones más pobres. Boosting típicamente funciona
 bien con árboles chicos (cada uno con sesgo alto), mientras que bosques
 aleatorios funciona con árboles grandes (sesgo bajo). 
 
-- En boosting usamos muchos árboles chicos adaptados secuencialmente. La disminución
+- En boosting usamos muchos árboles relativamente chicos adaptados secuencialmente. La disminución
 del sesgo proviene de usar distintos árboles que se encargan de adaptar el predictor
 a distintas partes del conjunto de entrenamiento. El control de varianza se
 logra con tasas de aprendizaje y tamaño de árboles, como veremos más adelante.
@@ -250,7 +250,7 @@ $$T = argmin_{T} 2\sum_{i=1}^N \log (1+ e^{-y^{(i)}(f_{m-1}(x^{(i)}) + T(x^{(i)}
 Nótese que sólo optimizamos con respecto a $T$, así que
 podemos escribir
 
-$$T = argmin_{T} 2\sum_{i=1}^N \log (1+ d_{m,i}e^{- y^{(i)}T(x^{(i)})})$$
+$$T = argmin_{T} \sum_{i=1}^N \log (1+ d_{m,i}e^{- y^{(i)}T(x^{(i)})})$$
 
 Y vemos que el problema es más difícil que en regresión. No podemos usar
 un ajuste de árbol usual de regresión o clasificación, *como hicimos en
@@ -702,30 +702,34 @@ una penalización costo-complejidad como en árboles CART (el término de $\gamm
 ### Paso de optimización para xgboost {-}
 
 En *xgboost*, en lugar de usar solo el gradiente para hacer cada paso, se utiliza una aproximación
-de segundo orden a la función de pérdida y se optimiza analíticamente. Siguiendo a [@xgboost]:
+de segundo orden a la función de pérdida y se optimiza analíticamente. Siguiendo a [@xgboost], aproximamos la cantidad 
 
-$$\sum_i L(y^{(i)}, f_{m-1}(x^{(i)}) + T(x^{(i)})) + \Omega(T) \approx \sum_i \left\{ L(y^{(i)}, f_{m-1}(x^{(i)})) + 
+$$\sum_i L(y^{(i)}, f_{m-1}(x^{(i)}) + T(x^{(i)})) + \Omega(T) $$
+
+con 
+
+$$\sum_i \left\{ L(y^{(i)}, f_{m-1}(x^{(i)})) + 
 g_iT(x^{(i)}) + \frac{1}{2}h_i (T(x^{(i)}))^2 \right\}+ \Omega(T)$$
 
 donde $g_i$ es el gradiente y $h_i$ es la segunda derivada de la función de pérdida. El primer término
-del lado derecho de esta ecuación es constante, así que tenemos que minimizar (buscando
+del lado izquierdo de esta fórmula es constante, así que tenemos que minimizar (buscando
 sobre posibles árboles $T$)
 
 $$\sum_i \left\{ g_iT(x^{(i)}) + \frac{1}{2}h_i (T(x^{(i)}))^2 \right\}+ \Omega(T) $$
 
-que es igual a
-
-$$\sum_i \left\{ g_iT(x^{(i)}) + \frac{1}{2}h_i (T(x^{(i)}))^2 \right\}+ \Omega(T) $$
 
 Supongamos que tenemos un árbol dado $T$, con regiones terminales $R_j$ donde
 hacemos una misma predicción $w_j$. Es decir $T(x^{(i)}) = w_j$ cuando $x^{(i)}\in R_j$.
 Agrupando por regiones $R_j$, podemos escribir la ecuación de arriba como
+(introduciendo adicionalmente el término de regularización L2 para las $w_j$):
 
 $$\sum_{j=1}^{|T|} \left\{ G_jw_j +\frac{1}{2}(H_j + \lambda)w_j^2     \right\} + \gamma |T|$$
 donde $G_j$ es la suma de todas las derivadas $g_i$ para los datos que satisfacen
 $x^{(i)}\in R_j$ (caen en la región $R_j$) y análogamente $H_j$ es la suma de las
 segundas derivadas $h_i$ para los datos que satisfacen
-$x^{(i)}\in R_j$. Como el árbol está fijo, podemos encontrar analíticamente
+$x^{(i)}\in R_j$. 
+
+Como el árbol $T$ está fijo, podemos encontrar analíticamente
 la solución $w_j^*$ que minimiza este objetivo (derivando e igualando a cero):
 
 $$w_j^* = -\frac{G_j}{H_j + \lambda }$$
@@ -783,9 +787,10 @@ write_rds(resultados, "./cache/resultados-xgboost.rds")
 resultados <- read_rds("cache/resultados-xgboost.rds")
 show_best(resultados, n = 3)
 ```
-Hay algunos resultados muy malos:
+Hay algunos resultados muy malos (específicamente, cuando la 
+tasa de aprendizaje es muy baja y no corremos suficientes árboles):
 
-```{r, fig.width = 9}
+```{r}
 collect_metrics(resultados) |> 
   filter(.metric == "mape") |> 
   ggplot(aes(x = trees, y = mean, ymin = mean - std_err, ymax = mean + std_err,
@@ -793,18 +798,21 @@ collect_metrics(resultados) |>
   geom_point() + facet_wrap(~mtry) +
   geom_linerange(alpha = 0.2) +
   geom_hline(yintercept = 10) +
-  ylab("mape val_cruzada") 
+  ylab("mape val_cruzada") + scale_y_log10()
 ```
-Filtramos:
+Filtramos (recuérdese que tomamos un grid aleatorio, y por eso
+no aparecen todas las combinaciones de posibles valores):
 
-```{r,  fig.width = 9}
+```{r}
 collect_metrics(resultados) |> 
-  filter(.metric == "mape", , trees  > 4000, learn_rate > 0.001) |> 
+  filter(.metric == "mape", trees  > 4000, learn_rate > 0.001) |> 
   group_by(mtry, trees, learn_rate, loss_reduction) |> 
   ggplot(aes(x = trees, y = mean, ymin = mean - std_err, ymax = mean + std_err,
-             colour = tree_depth, group = interaction(tree_depth, loss_reduction))) + 
+             colour = learn_rate, 
+             shape = factor(tree_depth),
+             group = interaction(tree_depth, learn_rate))) +
     geom_hline(yintercept = 10, colour = "red") +
-  geom_line() + facet_wrap(~mtry) + geom_point() +
+  geom_line() + facet_wrap( ~ mtry) + geom_point() +
   geom_linerange(alpha = 0.8) + ylab("mape val_cruzada") 
 ```
 
@@ -812,7 +820,7 @@ Y afinamos nuestro ajuste:
 
 ```{r}
 #xgboost es el default
-modelo_boosting <- boost_tree(learn_rate = 0.0025, trees = tune(), 
+modelo_boosting <- boost_tree(learn_rate = 0.002, trees = tune(), 
                               mtry = 20, tree_depth = 4) |> 
   set_mode("regression") |> 
   set_args(objective = "reg:squarederror")
@@ -820,7 +828,7 @@ flujo_casas <- workflow() |> add_recipe(receta_casas) |> add_model(modelo_boosti
 ```
 
 ```{r}
-num_arboles_tbl <- tibble(trees = seq(1, 10000, 100))
+num_arboles_tbl <- tibble(trees = seq(1, 10000, 100) - 1) 
 set.seed(81)
 particion_vc <- vfold_cv(casas_entrena, v = 10)
 mis_metricas <- metric_set(mape, rsq)
@@ -834,7 +842,7 @@ show_best(resultados)
 
 ```{r}
 collect_metrics(resultados) |> 
-  filter(.metric == "mape", trees > 10) |> 
+  filter(.metric == "mape", trees > 100) |> 
   ggplot(aes(x = trees, y = mean, ymin = mean - std_err, ymax = mean + std_err)) + 
   geom_point() +
   geom_line() + geom_ribbon(alpha = 0.2) + ylab("mape val_cruzada")
