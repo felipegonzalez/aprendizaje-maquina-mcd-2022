@@ -318,9 +318,9 @@ div.csl-indent {
 
 </header>
 
-<p>Boosting también utiliza la idea de un “ensamble” de árboles. La diferencia grande con bagging y bosques aleatorios en que la sucesión de árboles de boosting se ‘adapta’ al comportamiento del predictor a lo largo de las iteraciones, haciendo reponderaciones de los datos de entrenamiento para que el algoritmo se concentre en las predicciones más pobres. Boosting generalmente funciona bien con árboles chicos (cada uno con sesgo alto), mientras que bosques aleatorios funciona con árboles grandes (sesgo bajo).</p>
+<p>Boosting también utiliza la idea de un “ensemble” de árboles. La diferencia grande con bagging y bosques aleatorios en que la sucesión de árboles de boosting se <em>adapta</em> al comportamiento del predictor a lo largo de las iteraciones, haciendo reponderaciones de los datos de entrenamiento para que el algoritmo se concentre en las predicciones más pobres. Boosting típicamente funciona bien con árboles chicos (cada uno con sesgo alto), mientras que bosques aleatorios funciona con árboles grandes (sesgo bajo).</p>
 <ul>
-<li><p>En boosting usamos muchos árboles chicos adaptados secuencialmente. La disminución del sesgo proviene de usar distintos árboles que se encargan de adaptar el predictor a distintas partes del conjunto de entrenamiento. El control de varianza se logra con tasas de aprendizaje y tamaño de árboles, como veremos más adelante.</p></li>
+<li><p>En boosting usamos muchos árboles relativamente chicos adaptados secuencialmente. La disminución del sesgo proviene de usar distintos árboles que se encargan de adaptar el predictor a distintas partes del conjunto de entrenamiento. El control de varianza se logra con tasas de aprendizaje y tamaño de árboles, como veremos más adelante.</p></li>
 <li><p>En bosques aleatorios usamos muchos árboles grandes, cada uno con una muestra de entrenamiento perturbada (bootstrap). El control de varianza se logra promediando sobre esas muestras bootstrap de entrenamiento.</p></li>
 </ul>
 <p>Igual que bosques aleatorios, boosting es también un método que generalmente tiene alto poder predictivo.</p>
@@ -531,7 +531,7 @@ T = argmin_{T} \sum_{i=1}^N L(y^{(i)}, f_{m-1}(x^{(i)}) + T(x^{(i)}))
 <p>Ahora consideremos cómo se ve nuestro problema de optimización:</p>
 <p><span class="math display">\[T = argmin_{T} 2\sum_{i=1}^N \log (1+ e^{-y^{(i)}(f_{m-1}(x^{(i)}) + T(x^{(i)}))})\]</span></p>
 <p>Nótese que sólo optimizamos con respecto a <span class="math inline">\(T\)</span>, así que podemos escribir</p>
-<p><span class="math display">\[T = argmin_{T} 2\sum_{i=1}^N \log (1+ d_{m,i}e^{- y^{(i)}T(x^{(i)})})\]</span></p>
+<p><span class="math display">\[T = argmin_{T} \sum_{i=1}^N \log (1+ d_{m,i}e^{- y^{(i)}T(x^{(i)})})\]</span></p>
 <p>Y vemos que el problema es más difícil que en regresión. No podemos usar un ajuste de árbol usual de regresión o clasificación, <em>como hicimos en regresión</em>. No está claro, por ejemplo, cuál debería ser el residual que tenemos que ajustar (aunque parece un problema donde los casos de entrenamiento están ponderados por <span class="math inline">\(d_{m,i}\)</span>). Una solución para resolver aproximadamente este problema de minimización, es <strong>gradient boosting</strong>.</p>
 </section>
 <section id="gradient-boosting" class="level2" data-number="13.5">
@@ -947,7 +947,7 @@ Gradient boosting (versión simple)
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>(modelo <span class="ot">&lt;-</span> <span class="fu">xgb.train</span>(d_entrena, <span class="at">verbose =</span> <span class="dv">1</span>, <span class="at">nrounds =</span> <span class="dv">10000</span>, <span class="at">params =</span> params))</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  8.570   0.287   4.516 </code></pre>
+ 10.539   0.278   5.503 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xgb.save</span>(<span class="at">model =</span> modelo, <span class="at">fname =</span> <span class="st">"./cache/casas_boost.xgb"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -981,16 +981,17 @@ Gradient boosting (versión simple)
 <p>donde las <span class="math inline">\(w_t\)</span> son los valores de <span class="math inline">\(T\)</span> en cada una de sus nodos terminales. Se usa entonces una penalización costo-complejidad como en árboles CART (el término de <span class="math inline">\(\gamma\)</span>), junto con una penalización L2 sobre las predicciones del nuevo árbol ajustado, donde <span class="math inline">\(T(x^{(i)}) = w_{t(i)}\)</span>.</p>
 <section id="paso-de-optimización-para-xgboost" class="level3 unnumbered">
 <h3 class="unnumbered anchored" data-anchor-id="paso-de-optimización-para-xgboost">Paso de optimización para xgboost</h3>
-<p>En <em>xgboost</em>, en lugar de usar solo el gradiente para hacer cada paso, se utiliza una aproximación de segundo orden a la función de pérdida y se optimiza analíticamente. Siguiendo a <span class="citation" data-cites="xgboost">(<a href="99-referencias.html#ref-xgboost" role="doc-biblioref">Chen y Guestrin 2016</a>)</span>:</p>
-<p><span class="math display">\[\sum_i L(y^{(i)}, f_{m-1}(x^{(i)}) + T(x^{(i)})) + \Omega(T) \approx \sum_i \left\{ L(y^{(i)}, f_{m-1}(x^{(i)})) +
+<p>En <em>xgboost</em>, en lugar de usar solo el gradiente para hacer cada paso, se utiliza una aproximación de segundo orden a la función de pérdida y se optimiza analíticamente. Siguiendo a <span class="citation" data-cites="xgboost">(<a href="99-referencias.html#ref-xgboost" role="doc-biblioref">Chen y Guestrin 2016</a>)</span>, aproximamos la cantidad</p>
+<p><span class="math display">\[\sum_i L(y^{(i)}, f_{m-1}(x^{(i)}) + T(x^{(i)})) + \Omega(T) \]</span></p>
+<p>con</p>
+<p><span class="math display">\[\sum_i \left\{ L(y^{(i)}, f_{m-1}(x^{(i)})) +
 g_iT(x^{(i)}) + \frac{1}{2}h_i (T(x^{(i)}))^2 \right\}+ \Omega(T)\]</span></p>
-<p>donde <span class="math inline">\(g_i\)</span> es el gradiente y <span class="math inline">\(h_i\)</span> es la segunda derivada de la función de pérdida. El primer término del lado derecho de esta ecuación es constante, así que tenemos que minimizar (buscando sobre posibles árboles <span class="math inline">\(T\)</span>)</p>
+<p>donde <span class="math inline">\(g_i\)</span> es el gradiente y <span class="math inline">\(h_i\)</span> es la segunda derivada de la función de pérdida. El primer término del lado izquierdo de esta fórmula es constante, así que tenemos que minimizar (buscando sobre posibles árboles <span class="math inline">\(T\)</span>)</p>
 <p><span class="math display">\[\sum_i \left\{ g_iT(x^{(i)}) + \frac{1}{2}h_i (T(x^{(i)}))^2 \right\}+ \Omega(T) \]</span></p>
-<p>que es igual a</p>
-<p><span class="math display">\[\sum_i \left\{ g_iT(x^{(i)}) + \frac{1}{2}h_i (T(x^{(i)}))^2 \right\}+ \Omega(T) \]</span></p>
-<p>Supongamos que tenemos un árbol dado <span class="math inline">\(T\)</span>, con regiones terminales <span class="math inline">\(R_j\)</span> donde hacemos una misma predicción <span class="math inline">\(w_j\)</span>. Es decir <span class="math inline">\(T(x^{(i)}) = w_j\)</span> cuando <span class="math inline">\(x^{(i)}\in R_j\)</span>. Agrupando por regiones <span class="math inline">\(R_j\)</span>, podemos escribir la ecuación de arriba como</p>
+<p>Supongamos que tenemos un árbol dado <span class="math inline">\(T\)</span>, con regiones terminales <span class="math inline">\(R_j\)</span> donde hacemos una misma predicción <span class="math inline">\(w_j\)</span>. Es decir <span class="math inline">\(T(x^{(i)}) = w_j\)</span> cuando <span class="math inline">\(x^{(i)}\in R_j\)</span>. Agrupando por regiones <span class="math inline">\(R_j\)</span>, podemos escribir la ecuación de arriba como (introduciendo adicionalmente el término de regularización L2 para las <span class="math inline">\(w_j\)</span>):</p>
 <p><span class="math display">\[\sum_{j=1}^{|T|} \left\{ G_jw_j +\frac{1}{2}(H_j + \lambda)w_j^2     \right\} + \gamma |T|\]</span></p>
-<p>donde <span class="math inline">\(G_j\)</span> es la suma de todas las derivadas <span class="math inline">\(g_i\)</span> para los datos que satisfacen <span class="math inline">\(x^{(i)}\in R_j\)</span> (caen en la región <span class="math inline">\(R_j\)</span>) y análogamente <span class="math inline">\(H_j\)</span> es la suma de las segundas derivadas <span class="math inline">\(h_i\)</span> para los datos que satisfacen <span class="math inline">\(x^{(i)}\in R_j\)</span>. Como el árbol está fijo, podemos encontrar analíticamente la solución <span class="math inline">\(w_j^*\)</span> que minimiza este objetivo (derivando e igualando a cero):</p>
+<p>donde <span class="math inline">\(G_j\)</span> es la suma de todas las derivadas <span class="math inline">\(g_i\)</span> para los datos que satisfacen <span class="math inline">\(x^{(i)}\in R_j\)</span> (caen en la región <span class="math inline">\(R_j\)</span>) y análogamente <span class="math inline">\(H_j\)</span> es la suma de las segundas derivadas <span class="math inline">\(h_i\)</span> para los datos que satisfacen <span class="math inline">\(x^{(i)}\in R_j\)</span>.</p>
+<p>Como el árbol <span class="math inline">\(T\)</span> está fijo, podemos encontrar analíticamente la solución <span class="math inline">\(w_j^*\)</span> que minimiza este objetivo (derivando e igualando a cero):</p>
 <p><span class="math display">\[w_j^* = -\frac{G_j}{H_j + \lambda }\]</span></p>
 <p>que sustituyendo en la ecuación anterior nos da un valor del objetivo de</p>
 <p><span class="math display">\[obj=-\frac{1}{2}\sum_{j=1}^{|T|} \frac{G_j^2}{H_j + \lambda} + \gamma |T|,\]</span></p>
@@ -1040,7 +1041,7 @@ g_iT(x^{(i)}) + \frac{1}{2}h_i (T(x^{(i)}))^2 \right\}+ \Omega(T)\]</span></p>
 # ℹ Use `colnames()` to see all variable names</code></pre>
 </div>
 </div>
-<p>Hay algunos resultados muy malos:</p>
+<p>Hay algunos resultados muy malos (específicamente, cuando la tasa de aprendizaje es muy baja y no corremos suficientes árboles):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(resultados) <span class="sc">|&gt;</span> </span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"mape"</span>) <span class="sc">|&gt;</span> </span>
@@ -1049,36 +1050,38 @@ g_iT(x^{(i)}) + \frac{1}{2}h_i (T(x^{(i)}))^2 \right\}+ \Omega(T)\]</span></p>
 <span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>mtry) <span class="sc">+</span></span>
 <span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
 <span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">10</span>) <span class="sc">+</span></span>
-<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"mape val_cruzada"</span>) </span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"mape val_cruzada"</span>) <span class="sc">+</span> <span class="fu">scale_y_log10</span>()</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="14-arboles-boosting_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="864"></p>
+<p><img src="14-arboles-boosting_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="480"></p>
 </div>
 </div>
-<p>Filtramos:</p>
+<p>Filtramos (recuérdese que tomamos un grid aleatorio, y por eso no aparecen todas las combinaciones de posibles valores):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(resultados) <span class="sc">|&gt;</span> </span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"mape"</span>, , trees  <span class="sc">&gt;</span> <span class="dv">4000</span>, learn_rate <span class="sc">&gt;</span> <span class="fl">0.001</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"mape"</span>, trees  <span class="sc">&gt;</span> <span class="dv">4000</span>, learn_rate <span class="sc">&gt;</span> <span class="fl">0.001</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(mtry, trees, learn_rate, loss_reduction) <span class="sc">|&gt;</span> </span>
 <span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> trees, <span class="at">y =</span> mean, <span class="at">ymin =</span> mean <span class="sc">-</span> std_err, <span class="at">ymax =</span> mean <span class="sc">+</span> std_err,</span>
-<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">colour =</span> tree_depth, <span class="at">group =</span> <span class="fu">interaction</span>(tree_depth, loss_reduction))) <span class="sc">+</span> </span>
-<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">10</span>, <span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>mtry) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span></span>
-<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>(<span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"mape val_cruzada"</span>) </span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">colour =</span> learn_rate, </span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">shape =</span> <span class="fu">factor</span>(tree_depth),</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">group =</span> <span class="fu">interaction</span>(tree_depth, learn_rate))) <span class="sc">+</span></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">10</span>, <span class="at">colour =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>( <span class="sc">~</span> mtry) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>(<span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"mape val_cruzada"</span>) </span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="14-arboles-boosting_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="864"></p>
+<p><img src="14-arboles-boosting_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="480"></p>
 </div>
 </div>
 <p>Y afinamos nuestro ajuste:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co">#xgboost es el default</span></span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>modelo_boosting <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">learn_rate =</span> <span class="fl">0.0025</span>, <span class="at">trees =</span> <span class="fu">tune</span>(), </span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>modelo_boosting <span class="ot">&lt;-</span> <span class="fu">boost_tree</span>(<span class="at">learn_rate =</span> <span class="fl">0.002</span>, <span class="at">trees =</span> <span class="fu">tune</span>(), </span>
 <span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">mtry =</span> <span class="dv">20</span>, <span class="at">tree_depth =</span> <span class="dv">4</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_args</span>(<span class="at">objective =</span> <span class="st">"reg:squarederror"</span>)</span>
 <span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>flujo_casas <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">|&gt;</span> <span class="fu">add_recipe</span>(receta_casas) <span class="sc">|&gt;</span> <span class="fu">add_model</span>(modelo_boosting)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>num_arboles_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">trees =</span> <span class="fu">seq</span>(<span class="dv">1</span>, <span class="dv">10000</span>, <span class="dv">100</span>))</span>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>num_arboles_tbl <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">trees =</span> <span class="fu">seq</span>(<span class="dv">1</span>, <span class="dv">10000</span>, <span class="dv">100</span>) <span class="sc">-</span> <span class="dv">1</span>) </span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">81</span>)</span>
 <span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>particion_vc <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(casas_entrena, <span class="at">v =</span> <span class="dv">10</span>)</span>
 <span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>mis_metricas <span class="ot">&lt;-</span> <span class="fu">metric_set</span>(mape, rsq)</span>
@@ -1093,16 +1096,16 @@ g_iT(x^{(i)}) + \frac{1}{2}h_i (T(x^{(i)}))^2 \right\}+ \Omega(T)\]</span></p>
 <pre><code># A tibble: 5 × 7
   trees .metric .estimator  mean     n std_err .config               
   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;                 
-1  8601 mape    standard    9.70    10   0.467 Preprocessor1_Model087
-2  8701 mape    standard    9.70    10   0.468 Preprocessor1_Model088
-3  8801 mape    standard    9.70    10   0.468 Preprocessor1_Model089
-4  8501 mape    standard    9.70    10   0.467 Preprocessor1_Model086
-5  8301 mape    standard    9.70    10   0.467 Preprocessor1_Model084</code></pre>
+1  9700 mape    standard    9.71    10   0.466 Preprocessor1_Model098
+2     0 mape    standard    9.71    10   0.467 Preprocessor1_Model001
+3  9900 mape    standard    9.71    10   0.467 Preprocessor1_Model100
+4  9800 mape    standard    9.71    10   0.466 Preprocessor1_Model099
+5  9600 mape    standard    9.71    10   0.466 Preprocessor1_Model097</code></pre>
 </div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect_metrics</span>(resultados) <span class="sc">|&gt;</span> </span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"mape"</span>, trees <span class="sc">&gt;</span> <span class="dv">10</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"mape"</span>, trees <span class="sc">&gt;</span> <span class="dv">100</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> trees, <span class="at">y =</span> mean, <span class="at">ymin =</span> mean <span class="sc">-</span> std_err, <span class="at">ymax =</span> mean <span class="sc">+</span> std_err)) <span class="sc">+</span> </span>
 <span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
 <span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">geom_ribbon</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"mape val_cruzada"</span>)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
