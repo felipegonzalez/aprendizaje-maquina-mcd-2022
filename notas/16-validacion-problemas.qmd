@@ -276,21 +276,21 @@ que un cliente permanece. Por simplicidad, suponemos que todos los clientes empi
 en el tiempo 0.
 
 - Vamos a suponer durante el tiempo 0.5 y 1.5, hubo una campaña de ventas para
-intentar recuperar a clientes abandonadores. Una fracción los clientes que abandonaron entre el tiempo 0.3 y 1.5 recibieron una llamada de servicio a cliente. Esto está registrado en la base de datos.
+intentar recuperar a clientes abandonadores. Una fracción los clientes que abandonaron entre el tiempo 0.5 y 1.5 recibieron una llamada de servicio a cliente. Esto está registrado en la base de datos.
 
 
 ```{r}
 simular_clientes <- function(n,...){
     # tiempo que permanece cada cliente
-    tiempo_cliente <- rexp(n, 0.5)
-    # si se hizo un contacto
-    llamada <- ifelse(tiempo_cliente > 0.3 & tiempo_cliente < 1.5,
+    tiempo_cliente <- rexp(n, 0.25)
+    # si se hizo un contacto, en los tiempos de la campaña
+    llamada <- ifelse(tiempo_cliente > 0.5 & tiempo_cliente < 1.5,
                       rbinom(1, 1, 0.98), 0)
     # cuántas visitas, dependen del tiempo (proceso de poisson)
     num_visitas <- 1 + rpois(n, 5 * tiempo_cliente)
     # simulamos los tiempos cuando ocurrieron esos eventos
-    tiempos <- lapply(1:n, function(i){
-      c(0, runif(num_visitas[i] - 1, 0, tiempo_cliente[i]))}) 
+    tiempos <- map(1:n, function(i){
+      runif(num_visitas[i] - 1, 0, tiempo_cliente[i])}) 
     df <- tibble(id_cliente=1:n,
                  visitas = tiempos, 
                  tiempo_cliente = tiempo_cliente,
@@ -313,11 +313,14 @@ Ahora supongamos que hoy estamos en el tiempo t=2, así que los datos que tenemo
 los siguientes (también calculamos cuántas visitas ha tendido cada cliente hoy:
 
 ```{r}
+# filtrar la tabla a datos de hoy
 clientes_hoy <- mutate(clientes_futura, 
                        visitas = map(visitas, ~ keep(.x, ~ .x < 2)))
-num_visitas_hoy <- clientes_hoy |> 
+# calcular numero de visitas hoy
+num_visitas_hoy <- clientes_hoy |>
+  select(id_cliente, visitas) |> 
   mutate(num_visitas = map_int(visitas, length)) |> 
-  filter(num_visitas > 0)
+  select(-visitas)
 num_visitas_hoy |> head()
 ```
 
@@ -336,7 +339,7 @@ Para hacer nuestro modelo, ahora usamos el número de visitas de hoy:
 
 ```{r}
 datos_mod <- clientes_1 |> 
-  left_join(num_visitas_hoy |> select(id_cliente, num_visitas))
+  left_join(num_visitas_hoy)
 ```
 
 Y ahora dividimos entre entrenamiento y prueba:
@@ -344,8 +347,8 @@ Y ahora dividimos entre entrenamiento y prueba:
 set.seed(72427)
 datos_mod <- datos_mod |> 
    mutate(u = runif(n(), 0, 1))
-entrena <- filter(datos_mod, u < 0.8)
-valida <- filter(datos_mod, u >= 0.8)
+entrena <- filter(datos_mod, u < 0.5)
+valida <- filter(datos_mod, u >= 0.5)
 ```
 
 Ajustamos nuestro modelo
@@ -389,16 +392,16 @@ Ajustamos nuestro modelo sin *llamada*:
 
 ```{r}
 mod_1 <- glm(abandona ~ num_visitas , entrena, family = 'binomial')
-summary(mod_1)
+tidy(mod_1)
 ```
 
 
-y probamos
+y probamos en validación:
 
 
 ```{r}
 preds <- predict(mod_1, valida, type = 'response')
--2*mean(valida$abandona*log(preds) + (1-valida$abandona)*log(1-preds))
+-mean(valida$abandona*log(preds) + (1-valida$abandona)*log(1-preds))
 ```
 
 Y como esperábamos, el error subió. 
@@ -411,13 +414,13 @@ prueba <- clientes_hoy |> filter(tiempo_cliente>=2) |>
                                                    llamada = first(llamada))
 prueba$abandona <- prueba$tiempo_cliente < 3
 preds <- predict(mod_1, prueba, type = 'response')
--2*mean(prueba$abandona*log(preds) + (1-prueba$abandona)*log(1-preds))
+-mean(prueba$abandona*log(preds) + (1-prueba$abandona)*log(1-preds))
 ```
 
 y vemos que todavía tenemos problemas. ¿Qué está pasando?
 
 Tenemos filtración adicional de datos porque usamos *las visitas totales hasta hoy*. Cuando este número
-es grande, quiere decir que un cliente no abandona en el futuro. Así en el modelo usamos
+es grande, quiere decir que es probable que el cliente no abandonó en el futuro. Así en el modelo usamos
 el hecho de que no había abandonado para predecir que no abandonó (!!)
 
 Podemos corregir nuestro modelo corrigiendo nuestra variable de
@@ -451,11 +454,8 @@ tidy(mod_2)
 ```
 
 Nótese que el coeficiente de *num_visitas* es mucho más chico esta vez.
+Probamos con validación:
 
-Esto tiene sentido: cuantas más visitas, menor proabilidad de abandonar.
-Probamos (tasa de correctos)
-
-Validamos:
 ```{r}
 preds <- predict(mod_2, valida, type = 'response')
 -mean(valida$abandona*log(preds) + (1-valida$abandona)*log(1-preds))
@@ -476,7 +476,7 @@ Y vemos que nuestra validación y desempeño real coinciden, pues
 nuestro ejercicio de validación ya coincide con la tarea de predicción que nos
 interesa. En este caso,
 incluso nuestro proceso de entrenamiento está contaminado con datos que
-no tendremos cuando hacemos predicciones. 
+no tendremos cuando hacemos predicciones: al poner en producción nos podríamos dar cuenta de que no estamos usando la variable correcta. 
 
 - Desgraciadamente, en este ejemplo simulado no pudimos hacer nada para predecir
 abandono (por construcción). Pero una validación incorrecta parecía indicar que nuestro modelo
@@ -513,7 +513,15 @@ puede ser muy distinto si lo usamos con fotografías tomadas en campo con un tel
 que instalan una *app*,
 por ejemplo, puede ser que nuestro modelo se desempeñe mal al aplicarlo de forma masiva.
 
+::: callout-tip
 
+Nótese que la gravedad del problema no es necesariamente entrenar
+con datos que son diferentes. El verdadero problema es intentar
+validar con datos muy diferentes de los que vamos a observar en la realidad,
+y en este caso nuestra validación es defectuosa y es difícil saber qué tanto nuestro modelo se puede
+degradar al ser utilizado.
+
+:::
 ## Datos en conglomerados y muestreo complejo
 
 En muestras complejas, con el fin de reducir costos, muchas veces se muestrean
@@ -872,7 +880,7 @@ final. Estas variables también ven al futuro.
 
 - Recientemente se publicó un artículo donde se argumentaba que era posible distinguir
 (usando redes neuronales convolucionales) caras de criminales y no criminales. Las fotos se obtuvieron de fotos de la policía
-(criminales) y fotos de idetificaciones (no criminales). ¿Qué crees que podría fallar
+(criminales) y fotos de identificaciones (no criminales). ¿Qué crees que podría fallar
 aquí en términos de filtración de datos?
 
 ## Resumen
