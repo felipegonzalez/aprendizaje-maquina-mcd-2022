@@ -681,8 +681,7 @@ La contribución sería
 $$v(1)-v(0) = \beta_1(x_1^* - \bar{x_1}) +\beta_3\bar{x_2}\left(x_1^*-\frac{\overline{x_1x_2}}{\bar{x_2}}\right)$$
 Por otro lado, igual que arriba
 
-$$v(2) = \frac{1}{N}\sum_i f(x_1^{(i)},x_2^{*}) = \beta_0 + \beta_1\bar{x_1} + \beta_2 x_2^*
-+ \beta_3x_2^*\bar{x_1}$$
+$$v(2) = \frac{1}{N}\sum_i f(x_1^{(i)},x_2^{*}) = \beta_0 + \beta_1\bar{x_1} + \beta_2 x_2^* + \beta_3x_2^*\bar{x_1}$$
 
 y entonces: 
 $$v(1,2) - v(2) = \beta_1(x_1^*-\bar{x_1})+ \beta_3x_2^*(x_1^* - \bar{x_1})$$
