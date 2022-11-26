@@ -870,10 +870,7 @@ dbl (2): lat, long
 <p>La contribución sería</p>
 <p><span class="math display">\[v(1)-v(0) = \beta_1(x_1^* - \bar{x_1}) +\beta_3\bar{x_2}\left(x_1^*-\frac{\overline{x_1x_2}}{\bar{x_2}}\right)\]</span></p>
 <p>Por otro lado, igual que arriba</p>
-<p>$$v(2) = _i f(x_1<sup>{(i)},x_2</sup>{*}) = _0 + _1{x_1} + _2 x_2^*</p>
-<ul>
-<li>_3x_2^*{x_1}$$</li>
-</ul>
+<p><span class="math display">\[v(2) = \frac{1}{N}\sum_i f(x_1^{(i)},x_2^{*}) = \beta_0 + \beta_1\bar{x_1} + \beta_2 x_2^* + \beta_3x_2^*\bar{x_1}\]</span></p>
 <p>y entonces:</p>
 <p><span class="math display">\[v(1,2) - v(2) = \beta_1(x_1^*-\bar{x_1})+ \beta_3x_2^*(x_1^* - \bar{x_1})\]</span></p>
 <p>Y las cantidades <span class="math inline">\(v(1) - v(0)\)</span> y <span class="math inline">\(v(1,2)- v(2)\)</span> no son iguales en este caso. Tenemos dos órdenes distintos para poner las variables en el modelo, así que ponemos:</p>
@@ -995,7 +992,7 @@ dbl (2): lat, long
 <span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a><span class="fu">graf_caso</span>(data, contrib, <span class="dv">10</span>, pred_base)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Predicción base: 0.18, Predicción: 0.89"</code></pre>
+<pre><code>[1] "Predicción base: 0.18, Predicción: 0.02"</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="15-interpretacion_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="480"></p>
@@ -1004,7 +1001,7 @@ dbl (2): lat, long
 <div class="cell">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">graf_caso</span>(data, contrib, <span class="dv">102</span>, pred_base)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Predicción base: 0.18, Predicción: 0.89"</code></pre>
+<pre><code>[1] "Predicción base: 0.18, Predicción: 0.49"</code></pre>
 </div>
 <div class="cell-output-display">
 <p><img src="15-interpretacion_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="480"></p>
