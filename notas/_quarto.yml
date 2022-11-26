@@ -20,6 +20,7 @@ book:
     - 13-arboles.qmd
     - 14-arboles-boosting.qmd
     - 15-interpretacion.qmd
+    - 16-validacion-problemas.qmd
     - 99-referencias.qmd
   appendices:
     - 81-apendice-descenso.qmd
